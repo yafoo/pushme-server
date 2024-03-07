@@ -1,0 +1,33 @@
+{
+  "name": "pushme-server",
+  "version": "1.0.0",
+  "description": "PushMe消息通知服务器",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yafoo/pushme-server.git"
+  },
+  "keywords": [
+    "pushme",
+    "server",
+    "message",
+    "notification",
+    "push"
+  ],
+  "author": "yafoo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yafoo/pushme-server/issues"
+  },
+  "homepage": "https://github.com/yafoo/pushme-server#readme",
+  "dependencies": {
+    "aedes": "^0.51.0",
+    "jj.js": "^0.14.0"
+  },
+  "engines": {
+    "node": ">= 14.0.0"
+  }
+}

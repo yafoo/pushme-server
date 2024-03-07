@@ -1,0 +1,123 @@
+{{extend './layout.htm'}}
+
+{{block 'main'}}
+    <div class="me-center">
+        <h1 class="me-green" style="font-size: 50px; font-weight: 500; line-height: 1.5; padding-top: 30px;">PushMe</h1>
+        <h2 class="me-green" style="font-size: 30px; font-weight: 500; padding: 16px 0;">
+            一个简单轻量的Android消息通知客户端！
+        </h2>
+        <div style="padding: 16px 0;">
+            <a class="layui-btn" href="{{url('docs/index', 'https://push.i-i.me')}}">接口文档</a>
+            <a class="layui-btn layui-btn-primary layui-border-green" href="{{url('docs/download', 'https://push.i-i.me')}}">APP下载</a>
+        </div>
+    </div>
+
+    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">在线测试</h2>
+    <div class="" style="margin: 20px 0;">
+        <form class="layui-form layui-form-pane" lay-filter="form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">push_key</label>
+                <div class="layui-input-block">
+                    <input type="password" name="push_key" lay-verify="required|pass" placeholder="请输入push_key" autocomplete="off" lay-affix="eye" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <input type="checkbox" name="remember" lay-skin="primary" title="记住push_key" lay-filter="remember">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">消息标题</label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" placeholder="请输入消息标题" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-form-text">
+                <label class="layui-form-label">消息内容</label>
+                <div class="layui-input-block">
+                   <textarea name="content" placeholder="请输消息入内容" class="layui-textarea"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">消息类型</label>
+                <div class="layui-input-block">
+                    <input type="radio" name="type" value="text" title="text" checked>
+                    <input type="radio" name="type" value="markdown" title="markdown">
+                    <input type="radio" name="type" value="data" title="data">
+                    <input type="radio" name="type" value="markdata" title="markdata">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="send">发送</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{{/block}}
+
+{{block 'js'}}
+<script>
+    layui.use(function() {
+        var layer = layui.layer;
+        var form = layui.form;
+        var $ = layui.$;
+      
+        form.render().on('submit(send)', function(data) {
+            var field = data.field;
+            console.log(field);
+    
+            if(!field.push_key) {
+                layer.msg('push_key不能为空！', {icon: 2});
+                return false;
+            }
+    
+            if(field.remember == 'on') {
+                localStorage.setItem('push_key', field.push_key);
+            } else {
+                localStorage.removeItem('push_key');
+            }
+    
+            if(!field.title && !field.content) {
+                layer.msg('标题和内容至少填写一项！', {icon: 2});
+                return false;
+            }
+    
+            var push_data = {
+                push_key: field.push_key,
+                title: field.title,
+                content: field.content,
+                type: field.type
+            };
+    
+            $.post('/', push_data, function(result) {
+                if(result == 'success') {
+                    layer.msg('发送成功！');
+                    form.val('form', {title: '', content: ''});
+                } else {
+                    layer.msg(result, {icon: 2});
+                }
+            });
+            return false;
+        });
+    
+        form.on('checkbox(remember)', function(data) {
+            var elem = data.elem;
+            console.log(elem.checked);
+    
+            var input_push_key = $('input[name=push_key]').val();
+            if(elem.checked && input_push_key) {
+                localStorage.setItem('push_key', input_push_key);
+            } else if(!elem.checked) {
+                localStorage.removeItem('push_key');
+            }
+        });
+    
+        var cache_push_ley = localStorage.getItem('push_key')
+        if(cache_push_ley) {
+            form.val('form', {push_key: cache_push_ley, remember: 'on'});
+        }
+    });
+</script>
+{{/block}}

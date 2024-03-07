@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>{{title || 'PushMe 一个简单轻量的Android消息客户端'}}</title>
+    <link rel="stylesheet" href="/layui/css/layui.css">
+    <style>
+        a:hover {
+            color: #46bc99;
+        }
+        .me-center {
+            text-align: center;
+        }
+        .me-green {
+            color: #46bc99;
+        }
+        .me-header {
+            position: relative;
+            box-shadow: 0 1px 3px rgb(0 0 0 / 5%);
+        }
+        .me-header:after {
+            position: absolute;
+            left: 0;
+            right: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #eee;
+            content: '';
+        }
+        .me-logo {
+            height: 60px;
+            line-height: 60px;
+            font-size: 24px;
+            color: #46bc99;
+            text-align: center;
+        }
+        .me-logo a {
+            color: #46bc99;
+        }
+        .me-nav {
+            padding: 0;
+            background-color: #fff!important;
+        }
+        .me-title {
+            line-height: 30px;
+            color: #333;
+            padding-top: 30px;
+        }
+        @media screen and (max-width: 767.99px) {
+            .me-logo {
+                height: 42px;
+                text-align: center;
+            }
+            .me-nav .layui-nav-item a {
+                padding: 0 10px;
+            }
+            .layui-table td,
+            .layui-table th {
+                padding: 5px 8px;
+            }
+        }
+        @media screen and (min-width: 768px) {
+            .layui-container {
+                width: 750px;
+            }
+            .me-header .layui-container {
+                display: flex;
+                justify-content: space-between;
+            }
+        }
+    </style>
+    {{block 'css'}}{{/block}}
+</head>
+<body>
+<div class="me-header">
+    <div class="layui-container">
+        <div class="me-logo"><a href="/">PushMe Server</a></div>
+        <ul class="layui-nav layui-bg-gray me-nav">
+            <li class="layui-nav-item {{cur_nav == '/' ? 'layui-this' : ''}}" lay-unselect><a href="/">首页</a></li>
+            <li class="layui-nav-item {{cur_nav == 'setting' ? 'layui-this' : ''}}" lay-unselect><a href="/setting">设置</a></li>
+            {{if is_login}}
+            <li class="layui-nav-item {{cur_nav == 'logout' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('setting/logout')}}">退出</a></li>
+            {{/if}}
+        </ul>
+    </div>
+</div>
+
+<div class="layui-container" style="padding-bottom: 20px;">
+    {{block 'main'}}{{/block}}
+</div>
+
+<script src="/layui/layui.js"></script>
+{{block 'js'}}{{/block}}
+</body>
+</html>
