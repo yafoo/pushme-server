@@ -3,7 +3,15 @@ const Aedes = require('aedes');
 
 // PushMe server
 const aedes = Aedes();
+aedes.preConnect = function(client, packet, callback) {
+    // Logger.log('server', '[preConnect]', packet.clientId);
+    if(packet.keepalive == 300 || packet.keepalive == 600) {
+        packet.keepalive = 640;
+    }
+    callback(null, true);
+}
 aedes.authorizeSubscribe = function(client, sub, callback) {
+    // Logger.log('server', '[authorizeSubscribe]', client.id);
     let setting = {};
     try {
         setting = require('./config/setting.js');
@@ -14,11 +22,15 @@ aedes.authorizeSubscribe = function(client, sub, callback) {
     }
     callback(null, sub);
 }
+
 aedes.on('clientReady', function(client) {
     Logger.log('server', '[clientReady]', client.id);
 });
 aedes.on('clientDisconnect', function(client) {
     Logger.log('server', '[clientDisconnect]', client.id);
+});
+aedes.on('clientError', function (client, err) {
+    Logger.log('server', '[clientError]', client.id, err.message);
 });
 
 const server = require('net').createServer(aedes.handle);
