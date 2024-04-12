@@ -1,5 +1,5 @@
 # PushMeServer
-PushMeServer是基于nodejs开发的消息服务器，支持安装、登录、管理push_key的功能，环境要求nodejs版本>=14。
+PushMeServer是基于nodejs开发的[PushMe](https://push.i-i.me/) APP消息服务器，支持安装、登录、管理push_key的功能，环境要求nodejs版本>=14。
 
 ### 仓库地址
 
