@@ -4,6 +4,9 @@ const md5 = utils.md5;
 class Base extends Controller
 {
     _init() {
+        const pkg = require('../../package.json');
+        this.version = pkg.version;
+        this.$assign('version', 'v' + pkg.version);
         this.$assign('is_login', this._isLogin());
     }
 

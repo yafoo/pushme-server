@@ -38,6 +38,11 @@
         .me-logo a {
             color: #46bc99;
         }
+        .me-logo .me-version {
+            font-size: 12px;
+            color: #666;
+            padding-left: 5px;
+        }
         .me-nav {
             padding: 0;
             background-color: #fff!important;
@@ -75,7 +80,7 @@
 <body>
 <div class="me-header">
     <div class="layui-container">
-        <div class="me-logo"><a href="/">PushMe Server</a></div>
+        <div class="me-logo"><a href="/">PushMe Server</a><span class="me-version">{{version}}</span></div>
         <ul class="layui-nav layui-bg-gray me-nav">
             <li class="layui-nav-item {{cur_nav == '/' ? 'layui-this' : ''}}" lay-unselect><a href="/">首页</a></li>
             <li class="layui-nav-item {{cur_nav == 'setting' ? 'layui-this' : ''}}" lay-unselect><a href="/setting">设置</a></li>
