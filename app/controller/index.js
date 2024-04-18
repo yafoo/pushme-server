@@ -46,7 +46,7 @@ class Index extends Base
         }
 
         const date = this.$request.query('date', undefined);
-        if(typeof(push_key) != 'string' || typeof(title) != 'string' || typeof(content) != 'string') {
+        if(typeof push_key == 'object' || typeof title == 'object' || typeof content == 'object') {
             return this.$show('Push failed, the parameter format is incorrect!');
         }
 
