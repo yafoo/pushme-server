@@ -1,5 +1,5 @@
 # PushMeServer
-PushMeServer是基于nodejs开发的[PushMe](https://push.i-i.me/) APP消息服务器，支持安装、登录、管理push_key的功能，环境要求nodejs版本>=14。
+PushMeServer是基于nodejs开发的[PushMe](https://push.i-i.me/) APP消息服务器，支持安装、登录、管理push_key的功能，环境要求nodejs版本>=16。
 
 ### 仓库地址
 
@@ -9,11 +9,29 @@ Gitee：https://gitee.com/yafu/pushme-server
 
 ### 系统安装
 
-由于是nodejs程序，所以需要安装nodejs运行环境。
+#### 一、Docker部署
 
-在程序根目录执行`node ./server.js`，即可启动程序。
+```bash
+docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
+```
+> 注意：镜像内没有打包node_moudules目录，容器首次启动时会自动安装依赖，所以启动速度没那么快。
 
-程序运行，需要两个端口`3100`和`3010`，假如你的服务器IP为`0.0.0.0`，则：
+#### 二、源码安装
+
+环境要求：nodejs>=16
+
+端口要求：`3100`和`3010`
+
+在程序根目录执行命令：
+
+```bash
+npm i
+node ./server.js
+```
+
+#### 系统初始化
+
+假如你的服务器IP为`0.0.0.0`，则：
 - 0.0.0.0:3100：为消息服务器，在PushMe安卓客户端，设置自建服务，host填写`0.0.0.0`，端口填写`3100`，保存即可。
 - 0.0.0.0:3010：为Web管理及接口服务器，首次访问`http://0.0.0.0:3010`，会提示安装，安装后进入首页，可以在线测试消息发送功能。
 
