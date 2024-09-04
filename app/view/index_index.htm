@@ -1,5 +1,19 @@
 {{extend './layout.htm'}}
 
+{{block 'css'}}
+<style>
+    .me-relate-item {
+        padding:0 8px;
+    }
+    .me-relate-git {
+        display: none;
+    }
+    .me-relate-item:hover .me-relate-git {
+        display: inline;
+    }
+</style>
+{{/block}}
+
 {{block 'main'}}
     <div class="me-center">
         <h1 class="me-green" style="font-size: 50px; font-weight: 500; line-height: 1.5; padding-top: 30px;">PushMe</h1>
@@ -10,6 +24,12 @@
             <a class="layui-btn" href="{{url('docs/index', 'https://push.i-i.me')}}">接口文档</a>
             <a class="layui-btn layui-btn-primary layui-border-green" href="{{url('docs/download', 'https://push.i-i.me')}}">APP下载</a>
         </div>
+        <div class="me-relate">
+            <span>生态项目：</span>
+            <span class="me-relate-item"><a href="https://push.i-i.me/docs/host">PushMeServer</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-server">Github</a></span>
+            <span class="me-relate-item"><a href="https://push.i-i.me/docs/plugin">PushMePlugin</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-plugin">Github</a></span>
+            <span class="me-relate-item"><a href="https://push.i-i.me/docs/repost">PushMeClient</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-client">Github</a></span>
+            <span class="me-relate-item"><a href="https://t.me/pushme_channel" target="_blank">Telegram订阅</a></div>
     </div>
 
     <h2 style="line-height: 30px; color: #333; padding-top: 30px;">在线测试</h2>
@@ -45,6 +65,7 @@
                     <input type="radio" name="type" value="markdown" title="markdown">
                     <input type="radio" name="type" value="data" title="data">
                     <input type="radio" name="type" value="markdata" title="markdata">
+                    <input type="radio" name="type" value="chart" title="chart">
                 </div>
             </div>
             <div class="layui-form-item">

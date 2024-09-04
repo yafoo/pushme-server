@@ -51,8 +51,10 @@ class Index extends Base
         }
 
         const msg = {title, content, date};
-        if(type == 'markdown' || type == 'data' || type == 'markdata') {
+        if(~['text', 'markdown', 'data', 'markdata', 'chart'].indexOf(type)) {
             msg.type = type;
+        } else {
+            msg.type = 'text';
         }
         let result = await this.ctx.publish(push_key, msg);
 
