@@ -25,7 +25,8 @@
   "homepage": "https://github.com/yafoo/pushme-server#readme",
   "dependencies": {
     "aedes": "^0.51.0",
-    "jj.js": "^0.14.0"
+    "jj.js": "^0.14.0",
+    "websocket-stream": "^5.5.2"
   },
   "engines": {
     "node": ">=16"

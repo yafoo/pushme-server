@@ -72,10 +72,14 @@ app.use(async(ctx, next) => {
     await next();
 });
 const panel_port = 3010;
-app.listen(panel_port, '0.0.0.0', function(err) {
+const panelServer = app.listen(panel_port, '0.0.0.0', function(err) {
     if(!err) {
         Logger.system('pushme panel is started and listening on port', panel_port);
     } else {
         Logger.error('pushme panel error', err);
     }
 });
+
+const ws = require('websocket-stream');
+ws.createServer({server: panelServer}, aedes.handle);
+Logger.system('websocket is started and listening on port', panel_port);
