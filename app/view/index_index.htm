@@ -2,14 +2,36 @@
 
 {{block 'css'}}
 <style>
+    .me-relate {
+        line-height: 1.8;
+    }
     .me-relate-item {
         padding:0 8px;
     }
     .me-relate-git {
-        display: none;
+        margin-right: 3px;
     }
     .me-relate-item:hover .me-relate-git {
         display: inline;
+    }
+    .me-input-group {
+        display: flex;
+    }
+    .me-input-prefix {
+        width: 105px;
+    }
+    .me-input-suffix {
+        width: 105px;
+    }
+    .me-input-group input {
+        border-radius: 0!important;
+    }
+    .me-input-suffix input {
+        border-radius: 0 2px 2px 0!important;
+    }
+    .me-hello-world button {
+        margin-left: 10px;
+        margin-top: 4px;
     }
 </style>
 {{/block}}
@@ -21,15 +43,14 @@
             一个简单轻量的Android消息通知客户端！
         </h2>
         <div style="padding: 16px 0;">
-            <a class="layui-btn" href="{{url('docs/index', 'https://push.i-i.me')}}">接口文档</a>
-            <a class="layui-btn layui-btn-primary layui-border-green" href="{{url('docs/download', 'https://push.i-i.me')}}">APP下载</a>
+            <a class="layui-btn" href="{{url('docs/index', 'https://push.i-i.me')}}" target="_blank">接口文档</a>
+            <a class="layui-btn layui-btn-primary layui-border-green" href="{{url('docs/download', 'https://push.i-i.me')}}" target="_blank">APP下载</a>
         </div>
         <div class="me-relate">
-            <span>生态项目：</span>
-            <span class="me-relate-item"><a href="https://push.i-i.me/docs/host">PushMeServer</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-server">Github</a></span>
-            <span class="me-relate-item"><a href="https://push.i-i.me/docs/plugin">PushMePlugin</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-plugin">Github</a></span>
-            <span class="me-relate-item"><a href="https://push.i-i.me/docs/repost">PushMeClient</a> <a class="me-relate-git" href="https://github.com/yafoo/pushme-client">Github</a></span>
-            <span class="me-relate-item"><a href="https://t.me/pushme_channel" target="_blank">Telegram订阅</a></div>
+            <span class="me-relate-item"><a class="me-relate-git" href="https://github.com/yafoo/pushme-server" target="_blank"><i class="layui-icon layui-icon-github"></i></a><a href="https://push.i-i.me/docs/host" target="_blank">PushMeServer</a></span>
+            <span class="me-relate-item"><a class="me-relate-git" href="https://github.com/yafoo/pushme-plugin" target="_blank"><i class="layui-icon layui-icon-github"></i></a><a href="https://push.i-i.me/docs/plugin" target="_blank">PushMePlugin</a></span>
+            <span class="me-relate-item"><a class="me-relate-git" href="https://github.com/yafoo/pushme-client" target="_blank"><i class="layui-icon layui-icon-github"></i></a><a href="https://push.i-i.me/docs/repost" target="_blank">PushMeClient</a></span>
+            <span class="me-relate-item"><a class="me-relate-git" href="https://t.me/pushme_channel" target="_blank"><i class="layui-icon layui-icon-release"></i></a><a href="https://t.me/pushme_channel" target="_blank">Telegram</a></div>
     </div>
 
     <h2 style="line-height: 30px; color: #333; padding-top: 30px;">在线测试</h2>
@@ -49,7 +70,21 @@
             <div class="layui-form-item">
                 <label class="layui-form-label">消息标题</label>
                 <div class="layui-input-block">
-                    <input type="text" name="title" placeholder="请输入消息标题" autocomplete="off" class="layui-input">
+                    <div class="me-input-group">
+                        <div class="me-input-prefix">
+                            <select name="theme">
+                                <option value="">主题</option>
+                                <option value="i">信息</option>
+                                <option value="s">成功</option>
+                                <option value="w">警告</option>
+                                <option value="f">失败</option>
+                            </select>
+                        </div>
+                        <input type="text" name="title" placeholder="请输入消息标题" autocomplete="off" class="layui-input">
+                        <div class="me-input-suffix">
+                            <input type="text" name="channel" placeholder="消息通道" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="layui-form-item layui-form-text">
@@ -69,6 +104,16 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">消息demo</label>
+                <div class="layui-input-block me-hello-world">
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="text">hello world</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdown">hello markdown</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="data">hello data</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdata">hello markdata</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart">hello chart</button>
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <div class="layui-input-block">
                     <button class="layui-btn" lay-submit lay-filter="send">发送</button>
                     <button type="reset" class="layui-btn layui-btn-primary">重置</button>
@@ -81,12 +126,12 @@
 {{block 'js'}}
 <script>
     layui.use(function() {
-        var layer = layui.layer;
-        var form = layui.form;
-        var $ = layui.$;
+        const layer = layui.layer;
+        const form = layui.form;
+        const $ = layui.$;
       
         form.render().on('submit(send)', function(data) {
-            var field = data.field;
+            const field = data.field;
             console.log(field);
     
             if(!field.push_key) {
@@ -105,9 +150,16 @@
                 return false;
             }
     
-            var push_data = {
+            let title = field.title;
+            if(field.theme) {
+                title = `[${field.theme}]` + title;
+            }
+            if(field.channel) {
+                title += `[~${field.channel}]`;
+            }
+            const push_data = {
                 push_key: field.push_key,
-                title: field.title,
+                title,
                 content: field.content,
                 type: field.type
             };
@@ -124,10 +176,10 @@
         });
     
         form.on('checkbox(remember)', function(data) {
-            var elem = data.elem;
+            const elem = data.elem;
             console.log(elem.checked);
     
-            var input_push_key = $('input[name=push_key]').val();
+            const input_push_key = $('input[name=push_key]').val();
             if(elem.checked && input_push_key) {
                 localStorage.setItem('push_key', input_push_key);
             } else if(!elem.checked) {
@@ -135,10 +187,25 @@
             }
         });
     
-        var cache_push_ley = localStorage.getItem('push_key')
+        const cache_push_ley = localStorage.getItem('push_key')
         if(cache_push_ley) {
             form.val('form', {push_key: cache_push_ley, remember: 'on'});
         }
+
+        const random = function() {
+            return Math.round(Math.random()*100);
+        };
+        $('.me-hello-world button').click(function() {
+            const contents = {
+                text: 'PushMe，一个简单轻量的Android消息通知客户端！',
+                markdown: '## PushMe\n#### 一个简单轻量的Android消息通知客户端！\n官网：https://push.i-i.me/',
+                data: random(),
+                markdata: `||IP|UV|PV\n-|-|-|-\n今日|${random()}|${random()}|${random()}\n预计|${random()}|${random()}|${random()}\n昨日|${random()}|${random()}|${random()}`,
+                chart: `{"series":[{"type":"pie","data":[{"value":${random()},"name":"A"},{"value":${random()},"name":"B"},{"value":${random()},"name":"C"}]}]}`
+            };
+            const type = $(this).data('type');
+            form.val('form', {title: `hello ${type}`, content: contents[type], type});
+        });
     });
 </script>
 {{/block}}
