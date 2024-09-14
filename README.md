@@ -40,10 +40,10 @@ docker exec -it pushme-server sh
 # 切换跟目录
 cd /
 # 下载源码
-wget https://github.com/yafoo/pushme-server/archive/refs/tags/v1.3.0.tar.gz
+wget https://github.com/yafoo/pushme-server/archive/refs/tags/v1.4.0.tar.gz
 # 解压并复制到项目目录
-tar -zxvf v1.3.0.tar.gz
-cp -r pushme-server-1.3.0/* pushme-server/
+tar -zxvf v1.4.0.tar.gz
+cp -r pushme-server-1.4.0/* pushme-server/
 # 进入项目目录
 cd pushme-server
 # 安装依赖
