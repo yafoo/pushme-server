@@ -30,7 +30,7 @@ v1.2.0部署脚本：https://hub.docker.com/r/yafoo/pushme-server
 docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
 ```
 
-v1.3.0开始不再提供docker镜像，请使用如下命令，拉取一个node(>=18)镜像，然后执行脚本部署。
+v1.3.0开始不再提供docker镜像，请使用如下脚本（也可以拉取一个其他node(>=18)镜像）依次执行命令完成部署。提示：也可以复制下面所有脚本，粘贴进命令行界面，一次执行完所有命令，完成部署。
 
 ```bash
 # 拉取并运行node镜像，要求node>=18
