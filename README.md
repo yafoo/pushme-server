@@ -13,7 +13,7 @@ Gitee：https://gitee.com/yafu/pushme-server
 
 #### 环境要求
 
-nodejs>=16
+nodejs>=18
 
 #### 端口要求
 
@@ -30,20 +30,20 @@ v1.2.0部署脚本：https://hub.docker.com/r/yafoo/pushme-server
 docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
 ```
 
-v1.3.0开始不再提供docker镜像，请使用如下命令，拉取一个node(>=16)镜像，然后执行脚本部署。
+v1.3.0开始不再提供docker镜像，请使用如下命令，拉取一个node(>=18)镜像，然后执行脚本部署。
 
 ```bash
-# 拉取并运行node镜像，要求node>=16
-docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped node:16.20.2-alpine3.17
+# 拉取并运行node镜像，要求node>=18
+docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped node:18.20.4-alpine3.20
 # 进入容器环境
 docker exec -it pushme-server sh
 # 切换跟目录
 cd /
 # 下载源码
-wget https://github.com/yafoo/pushme-server/archive/refs/tags/v1.4.0.tar.gz
+wget https://github.com/yafoo/pushme-server/archive/refs/tags/v1.5.0.tar.gz
 # 解压并复制到项目目录
-tar -zxvf v1.4.0.tar.gz
-cp -r pushme-server-1.4.0/* pushme-server/
+tar -zxvf v1.5.0.tar.gz
+cp -r pushme-server-1.5.0/* pushme-server/
 # 进入项目目录
 cd pushme-server
 # 安装依赖
@@ -54,15 +54,15 @@ npm i pm2 -g --registry=https://registry.npmmirror.com
 pm2 start server.js --name pushme-server
 # 保存配置
 pm2 save
-# 设置开机启动。如果此步报错，项目就没办法开机自启动。如有容器重启，请进入容器`docker exec -it pushme-server sh`，手动执行再执行启动服务命令`pm2 start server.js --name pushme-server`
-pm2 startup
+# 设置开机启动
+pm2 startup #如果此步报错，项目就没办法开机自启动。每次容器重启后，请进入容器`docker exec -it pushme-server sh`，手动再执行启动服务命令`pm2 start server.js --name pushme-server`
 # 退出容器
 exit
 ```
 
 #### 二、源码安装
 
-环境要求：nodejs>=16
+环境要求：nodejs>=18
 
 在程序根目录执行命令：
 
