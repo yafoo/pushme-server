@@ -35,7 +35,7 @@ aedes.on('clientError', function (client, err) {
 
 const server = require('net').createServer(aedes.handle);
 const server_port = 3100;
-server.listen(server_port, '0.0.0.0', function (err) {
+server.listen(server_port, function (err) {
     if(!err) {
         Logger.system('pushme server is started and listening on port', server_port);
     } else {
@@ -72,7 +72,7 @@ app.use(async(ctx, next) => {
     await next();
 });
 const panel_port = 3010;
-const panelServer = app.listen(panel_port, '0.0.0.0', function(err) {
+const panelServer = app.listen(panel_port, function(err) {
     if(!err) {
         Logger.system('pushme panel is started and listening on port', panel_port);
     } else {
