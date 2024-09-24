@@ -25,39 +25,9 @@ nodejs>=18
 
 #### 一、Docker部署（脚本）
 
-v1.2.0部署脚本：https://hub.docker.com/r/yafoo/pushme-server
+仓库地址：https://hub.docker.com/r/yafoo/pushme-server
 ```bash
 docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
-```
-
-v1.3.0开始不再提供docker镜像，请使用如下脚本（也可以拉取一个其他node(>=18)镜像）依次执行命令完成部署。提示：也可以复制下面所有脚本，粘贴进命令行界面，一次执行完所有命令，完成部署。
-
-```bash
-# 拉取并运行node镜像，要求node>=18
-docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped node:18.20.4-alpine3.20
-# 进入容器环境
-docker exec -it pushme-server sh
-# 切换跟目录
-cd /
-# 下载源码
-wget https://github.com/yafoo/pushme-server/archive/refs/tags/v1.5.0.tar.gz
-# 解压并复制到项目目录
-tar -zxvf v1.5.0.tar.gz
-cp -r pushme-server-1.5.0/* pushme-server/
-# 进入项目目录
-cd pushme-server
-# 安装依赖
-npm i --registry=https://registry.npmmirror.com
-# 安装pm2
-npm i pm2 -g --registry=https://registry.npmmirror.com
-# 启动服务
-pm2 start server.js --name pushme-server
-# 保存配置
-pm2 save
-# 设置开机启动
-pm2 startup #如果此步报错，项目就没办法开机自启动。每次容器重启后，请进入容器`docker exec -it pushme-server sh`，手动再执行启动服务命令`pm2 start server.js --name pushme-server`
-# 退出容器
-exit
 ```
 
 #### 二、源码安装
@@ -73,14 +43,14 @@ node ./server.js
 
 #### 系统初始化
 
-假如你的服务器IP为`0.0.0.0`，则：
-- 访问`http://0.0.0.0:3010`，按提示安装，安装后进入首页，可以在线测试消息发送功能。
-- 0.0.0.0:3100：为消息服务器，在PushMe安卓客户端，设置自建服务，host填写`0.0.0.0`，端口填写`3100`，保存即可。
-- ws://0.0.0.0:3010：为Websocket消息服务地址，在PushMeClient电脑客户端，设置自建服务开启，IP或域名填写`0.0.0.0`，端口填写`3010`，push_key填写您的`push_key`，保存并重启即可。
+假如你的服务器IP为`0.0.0.0` (IPv6为`::`)，则：
+- 访问`http://0.0.0.0:3010` (IPv6:`http://[::]:3010`)，按提示安装，安装后进入首页，可以在线测试消息发送功能。
+- 0.0.0.0:3100：为消息服务器，在PushMe安卓客户端，设置自建服务，host填写`0.0.0.0` (IPv6:`[::]`)，端口填写`3100`，保存即可。
+- ws://0.0.0.0:3010 (IPv6:`ws://[::]:3010`)：为Websocket消息服务地址，在PushMeClient电脑客户端，设置自建服务开启，IP或域名填写`0.0.0.0` (IPv6:`[::]`)，端口填写`3010`，push_key填写您的`push_key`，保存并重启即可。
 
 ### 接口地址
 
-消息接口地址为：http://您服务器:3010，参数与官网保持一致，暂不支持temp_key。
+消息接口地址为：http://您服务器:3010 (IPv6:[http://[::]:3010](http://[::]:3010))，参数与官网保持一致，暂不支持temp_key。
 
 ### 端口更改、域名绑定
 
