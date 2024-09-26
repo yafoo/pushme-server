@@ -1,5 +1,6 @@
 FROM node:18.20.4-alpine3.20
 ENV NODE_ENV=production
+ENV TZ=Asia/Shanghai
 
 EXPOSE 3010 3100
 VOLUME /config
