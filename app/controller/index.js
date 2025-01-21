@@ -51,7 +51,7 @@ class Index extends Base
         }
 
         const msg = {title, content, date};
-        if(~['text', 'markdown', 'data', 'markdata', 'chart'].indexOf(type)) {
+        if(~['text', 'markdown', 'html', 'data', 'markdata', 'chart', 'echarts'].indexOf(type)) {
             msg.type = type;
         } else {
             msg.type = 'text';

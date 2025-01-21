@@ -119,19 +119,34 @@
                 <div class="layui-input-block">
                     <input type="radio" name="type" value="text" title="text" checked>
                     <input type="radio" name="type" value="markdown" title="markdown">
+                    <input type="radio" name="type" value="html" title="html">
                     <input type="radio" name="type" value="data" title="data">
                     <input type="radio" name="type" value="markdata" title="markdata">
                     <input type="radio" name="type" value="chart" title="chart">
+                    <input type="radio" name="type" value="echarts" title="echarts">
                 </div>
             </div>
             <div class="layui-form-item">
-                <label class="layui-form-label">消息demo</label>
+                <label class="layui-form-label">消息示例</label>
                 <div class="layui-input-block me-hello-world">
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="text">hello world</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdown">hello markdown</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="html">hello html</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="data">hello data</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdata">hello markdata</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart">hello chart</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="echarts">hello echarts</button>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">chart示例</label>
+                <div class="layui-input-block me-hello-world">
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="normal">hello chart</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="bar">bar chart</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="bar2">bar chart 2</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="bar3">bar chart 3</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="line">line chart</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="pie">pie chart</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="chart"  data-chart="pie2">pie chart 2</button>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -216,16 +231,33 @@
         const random = function() {
             return Math.round(Math.random()*100);
         };
+        const randomLetter = function() {
+            return String.fromCharCode(65 + Math.floor(Math.random() * 26));
+        }
         $('.me-hello-world button').click(function() {
             const contents = {
                 text: 'PushMe，一个简单轻量的Android消息通知客户端！',
                 markdown: '## PushMe\n#### 一个简单轻量的Android消息通知客户端！\n官网：https://push.i-i.me/',
+                html: '<div style="border: 10px solid #46bc99; text-align: center; font-size: 30px;">HTML</div>',
                 data: random(),
                 markdata: `||IP|UV|PV\n-|-|-|-\n今日|${random()}|${random()}|${random()}\n预计|${random()}|${random()}|${random()}\n昨日|${random()}|${random()}|${random()}`,
-                chart: `{"series":[{"type":"pie","data":[{"value":${random()},"name":"A"},{"value":${random()},"name":"B"},{"value":${random()},"name":"C"}]}]}`
+                chart: `${random()}`,
+                echarts: `{"series":[{"type":"pie","data":[{"value":${random()},"name":"A"},{"value":${random()},"name":"B"},{"value":${random()},"name":"C"}]}]}`,
+            };
+            const charts = {
+                normal: random(),
+                bar: `${random()},${random()},${random()}`,
+                bar2: `bar::${random()}|${randomLetter()}`,
+                bar3: `bar|5::${random()}|${randomLetter()},${random()}|${randomLetter()}`,
+                line: `line::${random()}|${randomLetter()}`,
+                pie: `pie::${random()}|${randomLetter()}`,
+                pie2: `pie|3::${random()}|A,${random()}|B,${random()}|C`,
             };
             const type = $(this).data('type');
-            form.val('form', {title: `hello ${type}`, content: contents[type], type});
+            const chart = $(this).data('chart');
+            const title = type == 'chart' ? $(this).text() : `hello ${type}`;
+            const content = type == 'chart' ? charts[chart] : contents[type];
+            form.val('form', {title, content, type});
         });
     });
 </script>
