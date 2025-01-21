@@ -27,7 +27,7 @@ nodejs>=18
 
 仓库地址：https://hub.docker.com/r/yafoo/pushme-server
 ```bash
-docker run -dit -p 3010:3010 -p 3100:3100 -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
+docker run -dit -p 3010:3010 -p 3100:3100 -e TZ=Asia/Shanghai -v $PWD/pushme-server/config:/pushme-server/config --name pushme-server --restart unless-stopped yafoo/pushme-server:latest
 ```
 
 #### 二、源码安装
