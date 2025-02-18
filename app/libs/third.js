@@ -167,6 +167,7 @@ class Third extends Context
             return third_data;
         }
 
+        third_data.type = '';
         return third_data;
     }
 }
