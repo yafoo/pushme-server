@@ -1,6 +1,6 @@
 {
   "name": "pushme-server",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "PushMe消息通知服务器",
   "main": "server.js",
   "scripts": {
