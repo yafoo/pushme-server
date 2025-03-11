@@ -30,19 +30,14 @@ class Index extends Base
             }
         }
 
-        // push_key不能为空
-        if(!push_key) {
-            return this.$show('Push failed, empty push_key!');
+        // push_key验证
+        const error = this._check_keys(push_key);
+        if(error) {
+            return this.$show(error);
         }
         // title、content至少填写一项
         if(title === '' && content === '') {
             return this.$show('Push failed, empty title and content!');
-        }
-
-        // push_key验证
-        if(!this.$config.setting.push_keys.includes(push_key)) {
-            this.$logger.error(`非法push_key ${push_key}`);
-            return this.$show('非法push_key!');
         }
 
         const date = this.$request.query('date', undefined);
@@ -56,14 +51,61 @@ class Index extends Base
         } else {
             msg.type = 'text';
         }
-        let result = await this.ctx.publish(push_key, msg);
+
+        let result = 'success';
+        if(!~push_key.indexOf(',')) {
+            result = await this.ctx.publish(push_key, msg);
+        } else {
+            const push_keys = push_key.split(',');
+            for(let i = 0; i < push_keys.length; i++) {
+                push_keys[i] && this.ctx.publish(push_keys[i], msg);
+            }
+        }
 
         if(third_data.title || third_data.content) {
             const state = result == 'success' ? 0 : 1;
-            result = {errcode: state, errmsg: result, code: state, msg: result};
+            return this.$show({errcode: state, errmsg: result, code: state, msg: result});
         }
 
         this.$show(result);
+    }
+
+    _check_keys(push_key = "") {
+        if(!push_key) {
+            return "Push failed, empty push_key!";
+        }
+
+        if(typeof push_key != 'string') {
+            return "Push failed, push_key type must be string!";
+        }
+        
+        if(!~push_key.indexOf(',')) {
+            return this._check_key(push_key);
+        }
+
+        const push_keys = push_key.split(',');
+        if(push_keys.length > 100) {
+            return "Push failed, push_key numbers must be less than 100!";
+        }
+        let error = "";
+        for(let i = 0; i < push_keys.length; i++) {
+            error = this._check_key(push_keys[i]);
+            if(error) {
+                break;
+            }
+        }
+        return error;
+    }
+
+    _check_key(push_key = '') {
+        if(!push_key) {
+            return '';
+        }
+
+        if(!this.$config.setting.push_keys.includes(push_key)) {
+            this.$logger.error(`非法push_key ${push_key}`);
+            return '非法push_key!';
+        }
     }
 }
 
