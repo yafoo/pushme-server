@@ -35,7 +35,12 @@
         margin-bottom: 8px;
     }
     @media screen and (max-width: 767.99px) {
-        .layui-form-pane .layui-form-radio {
+        .me-relate-item {
+            display: inline-block;
+            min-width: 20%;
+            text-align: left;
+        }
+        .layui-form-radio {
             box-sizing: border-box;
             min-width: 30%;
             margin-right: 0;
@@ -46,7 +51,10 @@
         }
     }
     @media screen and (max-width: 420px) {
-        .layui-form-pane .layui-form-radio {
+        .me-relate-item {
+            min-width: 40%;
+        }
+        .layui-form-radio {
             min-width: 40%;
         }
         .me-hello-world button {
@@ -77,8 +85,8 @@
     <h2 style="line-height: 30px; color: #333; padding-top: 30px;">在线测试</h2>
     <div class="" style="margin: 20px 0;">
         <form class="layui-form layui-form-pane" lay-filter="form">
-            <div class="layui-form-item">
-                <label class="layui-form-label">push_key</label>
+            <div class="layui-form-item" style="margin-bottom: 0;">
+                <label class="layui-form-label">push_key<span class="layui-font-red">*</span></label>
                 <div class="layui-input-block">
                     <input type="password" name="push_key" lay-verify="required|pass" placeholder="请输入push_key" autocomplete="off" lay-affix="eye" class="layui-input">
                 </div>
@@ -88,38 +96,54 @@
                     <input type="checkbox" name="remember" lay-skin="primary" title="记住push_key" lay-filter="remember">
                 </div>
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">消息标题</label>
+            <div class="layui-form-item" style="margin-bottom: 0;">
                 <div class="layui-input-block">
                     <div class="me-input-group">
                         <div class="me-input-prefix">
-                            <select name="theme">
-                                <option value="">主题</option>
-                                <option value="i">信息</option>
-                                <option value="s">成功</option>
-                                <option value="w">警告</option>
-                                <option value="f">失败</option>
+                            <select name="theme" lay-filter="theme">
+                                <option value="">消息主题</option>
+                                <option value="i">信息:i</option>
+                                <option value="s">成功:s</option>
+                                <option value="w">警告:w</option>
+                                <option value="f">失败:f</option>
                             </select>
                         </div>
-                        <input type="text" name="title" placeholder="请输入消息标题" autocomplete="off" class="layui-input">
                         <div class="me-input-suffix">
-                            <input type="text" name="channel" placeholder="消息通道" autocomplete="off" class="layui-input">
+                            <input type="text" name="user" placeholder="消息分组" autocomplete="off" class="layui-input" lay-filter="user">
+                        </div>
+                        <div class="me-input-suffix" style="flex: 1;">
+                            <input type="text" name="face" placeholder="分组头像" autocomplete="off" class="layui-input" lay-filter="face">
+                        </div>
+                        <div class="me-input-suffix">
+                            <input type="text" name="channel" placeholder="消息通道" autocomplete="off" class="layui-input" lay-filter="channel">
                         </div>
                     </div>
                 </div>
             </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">消息标题<span class="layui-font-red">*</span></label>
+                <div class="layui-input-block">
+                    <input type="text" name="title" placeholder="请输入消息标题" autocomplete="off" class="layui-input" lay-filter="title">
+                    <div style="display: none; font-size: 10px; line-height: 12px; padding-left: 10px; word-break: break-all;">title：<span class="title-tips layui-font-green"></span></div>
+                </div>
+            </div>
             <div class="layui-form-item layui-form-text">
-                <label class="layui-form-label">消息内容</label>
+                <label class="layui-form-label" style="padding-left: 23px;">消息内容<span class="layui-font-red">*</span></label>
                 <div class="layui-input-block">
                    <textarea name="content" placeholder="请输消息入内容" class="layui-textarea"></textarea>
                 </div>
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">消息类型</label>
+            <div class="layui-form-item" style="margin-bottom: 1px;">
+                <label class="layui-form-label">通知消息</label>
                 <div class="layui-input-block">
                     <input type="radio" name="type" value="text" title="text" checked>
                     <input type="radio" name="type" value="markdown" title="markdown">
                     <input type="radio" name="type" value="html" title="html">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">数据消息</label>
+                <div class="layui-input-block">
                     <input type="radio" name="type" value="data" title="data">
                     <input type="radio" name="type" value="markdata" title="markdata">
                     <input type="radio" name="type" value="chart" title="chart">
@@ -130,11 +154,14 @@
                 <label class="layui-form-label">消息示例</label>
                 <div class="layui-input-block me-hello-world">
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="text">hello world</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdown">hello markdown</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="html">hello html</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="data">hello data</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdata">hello markdata</button>
-                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="echarts">hello echarts</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdown">markdown</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="html">html</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="data">data</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdata">markdata</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="echarts">echarts</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="user" data-user="PushMe">分组</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="emoji" data-user="我的分组"  data-face="😄">分组+emoji</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="all" data-theme="s" data-user="风景"  data-face="https://pics0.baidu.com/feed/8644ebf81a4c510f6d010e1cb533ce22d52aa56e.jpeg?token=b1183390109fbc69caaa11d0481df84a" data-channel="重点通知">主题+分组+头像+通道</button>
                 </div>
             </div>
             <div class="layui-form-item">
@@ -186,16 +213,9 @@
                 return false;
             }
     
-            let title = field.title;
-            if(field.theme) {
-                title = `[${field.theme}]` + title;
-            }
-            if(field.channel) {
-                title += `[~${field.channel}]`;
-            }
             const push_data = {
                 push_key: field.push_key,
-                title,
+                title: $('.title-tips').text(),
                 content: field.content,
                 type: field.type
             };
@@ -203,12 +223,38 @@
             $.post('/', push_data, function(result) {
                 if(result == 'success') {
                     layer.msg('发送成功！');
-                    form.val('form', {title: '', content: ''});
+                    form.val('form', {title: '', content: '', type: 'text', theme: '', user: '', face: '', channel: ''});
+                    title_tips();
                 } else {
                     layer.msg(result, {icon: 2});
                 }
             });
             return false;
+        });
+
+        // title tips
+        const title_tips = function() {
+            const titles = [];
+            const title = $('input[name="title"]').val();
+            const theme = $('select[name="theme"]').val();
+            const user = $('input[name="user"]').val();
+            const face = $('input[name="face"]').val();
+            const channel = $('input[name="channel"]').val();
+            theme && titles.push(`[${theme}]`);
+            const group = user !== '' && face !== '' ? `[#${user}!${face}]` : user !== '' ? `[#${user}]` : '';
+            group && !~group.indexOf('http') && titles.push(group);
+            title && titles.push(title);
+            group && ~group.indexOf('http') && titles.push(group);
+            channel && titles.push(`[~${channel}]`);
+            const res = titles.join('');
+            $('.title-tips').text(res);
+            res ? $('.title-tips').parent().show() : $('.title-tips').parent().hide();
+        };
+        form.on('select(theme)', function(data) {
+            title_tips();
+        });
+        $('input[name="title"],input[name="user"],input[name="face"],input[name="channel"]').on('input', function() {
+            title_tips();
         });
     
         form.on('checkbox(remember)', function(data) {
@@ -257,7 +303,18 @@
             const chart = $(this).data('chart');
             const title = type == 'chart' ? $(this).text() : `hello ${type}`;
             const content = type == 'chart' ? charts[chart] : contents[type];
-            form.val('form', {title, content, type});
+            const form_data = {title, content, type};
+            if(!form_data.content) {
+                form_data.content = 'PushMe，一个简单轻量的Android消息通知客户端！';
+            }
+            if(~['user', 'emoji', 'all'].indexOf(type)) {
+                form_data.type = 'text';
+            }
+            ['theme', 'user', 'face', 'channel'].forEach(key => {
+                form_data[key] = $(this).data(key) || '';
+            });
+            form.val('form', form_data);
+            title_tips();
         });
     });
 </script>
