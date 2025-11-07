@@ -37,9 +37,9 @@ const server = require('net').createServer(aedes.handle);
 const server_port = 3100;
 server.listen(server_port, function (err) {
     if(!err) {
-        Logger.system('pushme server is started and listening on port', server_port);
+        Logger.system('PushMe server is started and listening on port', server_port);
     } else {
-        Logger.error('pushme server error', err);
+        Logger.error('PushMe server error', err);
     }
 });
 
@@ -74,12 +74,12 @@ app.use(async(ctx, next) => {
 const panel_port = 3010;
 const panelServer = app.listen(panel_port, function(err) {
     if(!err) {
-        Logger.system('pushme panel is started and listening on port', panel_port);
+        Logger.system('PushMe api and panel is started and listening on port', panel_port);
     } else {
-        Logger.error('pushme panel error', err);
+        Logger.error('PushMe panel error', err);
     }
 });
 
 const ws = require('websocket-stream');
 ws.createServer({server: panelServer}, aedes.handle);
-Logger.system('websocket is started and listening on port', panel_port);
+Logger.system('PushMe websocket server is started and listening on port', panel_port);
