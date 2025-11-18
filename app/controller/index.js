@@ -45,12 +45,7 @@ class Index extends Base
             return this.$show('Push failed, the parameter format is incorrect!');
         }
 
-        const msg = {title, content, date};
-        if(~['text', 'markdown', 'html', 'data', 'markdata', 'chart', 'echarts'].indexOf(type)) {
-            msg.type = type;
-        } else {
-            msg.type = 'text';
-        }
+        const msg = {title, content, date, type};
 
         let result = 'success';
         if(!~push_key.indexOf(',')) {
