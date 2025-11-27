@@ -1,0 +1,45 @@
+{{extend './layout.htm'}}
+
+{{block 'main'}}
+    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">{{form == 'install' ? '系统安装' : '系统登录'}}</h2></h2>
+    <div class="" style="margin: 20px 0;">
+        <form class="layui-form layui-form-pane" lay-filter="form" action="" method="post">
+            {{include './form_user.htm'}}
+
+            {{if form == 'install'}}
+            {{include './form_password2.htm'}}
+            {{/if}}
+
+            <div class="layui-form-item">
+                <div class="layui-input-block">
+                    <button class="layui-btn" lay-submit lay-filter="send">{{form == 'install' ? '安装' : '登录'}}</button>
+                </div>
+            </div>
+        </form>
+    </div>
+{{/block}}
+
+{{block 'js'}}
+<script>
+    layui.use(function() {
+        var layer = layui.layer;
+        var form = layui.form;
+        var $ = layui.$;
+      
+        form.render().on('submit(send)', function(data) {
+            var field = data.field;
+            console.log(field);
+    
+            if(typeof field.user != 'undefined' && (!field.user || !field.password)) {
+                layer.msg('账号密码不能为空！', {icon: 2});
+                return false;
+            }
+
+            if(typeof field.password2 != 'undefined' && field.password != field.password2) {
+                layer.msg('两次输入密码不一致！', {icon: 2});
+                return false;
+            }
+        });
+    });
+</script>
+{{/block}}

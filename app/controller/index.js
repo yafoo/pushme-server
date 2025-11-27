@@ -22,8 +22,8 @@ class Index extends Base
 
         // WEB首页或安装
         if(!push_key && !title && !content) {
-            if(!this.$config.setting) {
-                return this.$redirect('setting/install');
+            if(!this._isInstall()) {
+                return this.$redirect('login/install');
             } else {
                 this.$assign('cur_nav', '/');
                 return await this.$fetch();

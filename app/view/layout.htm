@@ -83,9 +83,13 @@
         <div class="me-logo"><a href="/">PushMe Server</a><span class="me-version">{{version}}</span></div>
         <ul class="layui-nav layui-bg-gray me-nav">
             <li class="layui-nav-item {{cur_nav == '/' ? 'layui-this' : ''}}" lay-unselect><a href="/">首页</a></li>
+            {{if !is_install}}
+            <li class="layui-nav-item {{cur_nav == 'install' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/install')}}">安装</a></li>
+            {{else if is_login}}
             <li class="layui-nav-item {{cur_nav == 'setting' ? 'layui-this' : ''}}" lay-unselect><a href="/setting">设置</a></li>
-            {{if is_login}}
-            <li class="layui-nav-item {{cur_nav == 'logout' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('setting/logout')}}">退出</a></li>
+            <li class="layui-nav-item {{cur_nav == 'logout' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/logout')}}">退出</a></li>
+            {{else}}
+            <li class="layui-nav-item {{cur_nav == 'login' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/index')}}">登录</a></li>
             {{/if}}
         </ul>
     </div>

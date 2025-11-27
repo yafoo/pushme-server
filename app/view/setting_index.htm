@@ -1,46 +1,19 @@
 {{extend './layout.htm'}}
 
 {{block 'main'}}
-    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">{{actions[action]}}</h2></h2>
+    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">系统设置</h2></h2>
     <div class="" style="margin: 20px 0;">
         <form class="layui-form layui-form-pane" lay-filter="form" action="" method="post">
-            {{if action != 'login'}}
             <div class="layui-form-item">
                 <label class="layui-form-label">push_key</label>
                 <div class="layui-input-block">
                     <input type="text" name="push_key" value="{{push_key || ''}}" placeholder="请输入push_key，多个用','隔开" autocomplete="off" class="layui-input">
                 </div>
             </div>
-            {{/if}}
-
-            {{if action != 'index'}}
-            <div class="layui-form-item">
-                <label class="layui-form-label">账号</label>
-                <div class="layui-input-block">
-                    <input type="text" name="user" placeholder="请输入账号" autocomplete="off" class="layui-input">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">密码</label>
-                <div class="layui-input-block">
-                    <input type="password" name="password" placeholder="请输入密码" autocomplete="off" class="layui-input">
-                </div>
-            </div>
-            {{/if}}
-
-            {{if action == 'install'}}
-            <div class="layui-form-item">
-                <label class="layui-form-label">确认密码</label>
-                <div class="layui-input-block">
-                    <input type="password" name="password2" placeholder="请再次输入密码" autocomplete="off" class="layui-input">
-                </div>
-            </div>
-            {{/if}}
 
             <div class="layui-form-item">
                 <div class="layui-input-block">
-                    <button class="layui-btn" lay-submit lay-filter="send">{{buttons[action]}}</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    <button class="layui-btn" lay-submit lay-filter="send">提交</button>
                 </div>
             </div>
         </form>
@@ -57,33 +30,6 @@
         form.render().on('submit(send)', function(data) {
             var field = data.field;
             console.log(field);
-    
-            if(typeof field.user != 'undefined' && (!field.user || !field.password)) {
-                layer.msg('账号密码不能为空！', {icon: 2});
-                return false;
-            }
-
-            if(typeof field.password2 != 'undefined' && field.password != field.password2) {
-                layer.msg('两次输入密码不一致！', {icon: 2});
-                return false;
-            }
-    
-            var push_data = {
-                push_key: field.push_key,
-                title: field.title,
-                content: field.content,
-                type: field.type
-            };
-    
-            // $.post('', field, function(result) {
-            //     if(result.state) {
-            //         layer.msg('发送成功！');
-            //         form.val('form', {title: '', content: ''});
-            //     } else {
-            //         layer.msg(result, {icon: 2});
-            //     }
-            // });
-            // return false;
         });
     });
 </script>
