@@ -1,9 +1,9 @@
-const Admin = require('./admin.js');
+const Base = require('./base.js');
 const time = () => Date.now() / 1000;
 let retry_time = 0;
 let retry_times = 5;
 
-class Login extends Admin
+class Login extends Base 
 {
     async _init() {
         super._init();
@@ -74,7 +74,7 @@ class Login extends Admin
         if(!user || !password) {
             return this.$error('账号或密码不能为空！');
         }
-        await this._writeSettingFile({user: this._md5(user), password: this._md5(password)});
+        await this.$libs.setting.save({user: this._md5(user), password: this._md5(password)});
 
         // 模拟登录
         this.$cookie.set('user', user);
