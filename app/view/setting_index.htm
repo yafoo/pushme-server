@@ -8,20 +8,65 @@
     .layui-tab-card .layui-tab-content {
         padding: 15px;
     }
+    .layui-tab-card .layui-word-aux {
+        color: #333!important;
+        padding-left: 10px!important;
+    }
 </style>
 {{/block}}
 
 {{block 'main'}}
     <h2 style="line-height: 30px; color: #333; padding-top: 30px;">管理中心</h2></h2>
-    <div class="layui-tab layui-tab-card" style="margin-bottom: 0;">
+    <div class="layui-tab layui-tab-card" lay-filter="setting" style="margin-bottom: 0;">
         <ul class="layui-tab-title">
-            <li class="layui-this">PushKey</li>
+            <li class="layui-this">系统信息</li>
+            <li>PushKey</li>
             <li>TLS/SSL</li>
             <li>账户密码</li>
         </ul>
         <div class="layui-tab-content">
-            <!-- PushKey -->
+            <!-- 系统信息 -->
             <div class="layui-tab-item layui-show">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <input type="hidden" name="form" value="status" />
+                    <!-- <div class="layui-form-item">
+                        <label class="layui-form-label">进程ID</label>
+                        <div class="layui-form-mid layui-word-aux me-status-process"></div>
+                    </div> -->
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">内存</label>
+                        <div class="layui-form-mid layui-word-aux me-status-memory"></div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">node</label>
+                        <div class="layui-form-mid layui-word-aux me-status-node"></div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">系统</label>
+                        <div class="layui-form-mid layui-word-aux me-status-platform"></div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">运行时间</label>
+                        <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">客户端</label>
+                        <div class="layui-form-mid layui-word-aux me-status-clients"></div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">服务状态</label>
+                        <div class="layui-input-block">
+                            <input type="checkbox" name="zzz" lay-skin="switch" lay-text="开启|关闭">
+                        </div>
+                    </div>
+
+                    {{include './form_submit.htm'}}
+                </form>
+            </div>
+
+            <!-- PushKey -->
+            <div class="layui-tab-item">
                 <form class="layui-form layui-form-pane" action="" method="post">
                     <input type="hidden" name="form" value="push_key" />
                     <div class="layui-form-item">
@@ -31,11 +76,7 @@
                         </div>
                     </div>
 
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit>提交</button>
-                        </div>
-                    </div>
+                    {{include './form_submit.htm'}}
                 </form>
             </div>
 
@@ -54,11 +95,7 @@
                         </div>
                     </div>
 
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit>提交</button>
-                        </div>
-                    </div>
+                    {{include './form_submit.htm'}}
                 </form>
             </div>
 
@@ -68,12 +105,7 @@
                     <input type="hidden" name="form" value="user" />
                     {{include './form_user.htm'}}
                     {{include './form_password2.htm'}}
-
-                    <div class="layui-form-item">
-                        <div class="layui-input-block">
-                            <button class="layui-btn" lay-submit>提交</button>
-                        </div>
-                    </div>
+                    {{include './form_submit.htm'}}
                 </form>
             </div>
         </div>
@@ -108,6 +140,61 @@
                 $('.me-btn-tls-self').addClass('layui-hide');
             }
         });
+
+        // 系统状态
+        element = layui.element;
+        let timer_status = null;
+        const get_status = function() {
+            $.post('{{url("status")}}', function(res) {
+                if(!res.state) return;
+                const data = res.data;
+                Object.keys(data).forEach(function(key) {
+                    let value = data[key];
+                    if(key == 'memory') {
+                        const memoryMB = (value / 1024 / 1024).toFixed(2);
+                        value = `${memoryMB}MB(${value}B)`;
+                    } else if(key == 'uptime') {
+                        value = formatUptimeDetailed(value);
+                    }
+                    $('.me-status-' + key).text(value);
+                });
+            });
+        }
+        const start_timer = function() {
+            if(timer_status) return;
+            get_status();
+            timer_status = setInterval(function() {
+                get_status();
+            }, 5000);
+        }
+        const stop_timer = function() {
+            if(timer_status) clearInterval(timer_status);
+            timer_status = null;
+        }
+
+        start_timer();
+        layui.element.on('tab(setting)', function(data) {
+            data.index == 0 ? start_timer() : stop_timer();
+        });
     });
+
+    function formatUptimeDetailed(seconds) {
+        const totalSeconds = Math.floor(seconds);
+        const milliseconds = Math.round((seconds - totalSeconds) * 1000);
+        
+        const days = Math.floor(totalSeconds / (24 * 60 * 60));
+        const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
+        const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+        const secs = totalSeconds % 60;
+        
+        const parts = [];
+        if (days > 0) parts.push(`${days}天`);
+        if (hours > 0) parts.push(`${hours}时`);
+        if (minutes > 0) parts.push(`${minutes}分`);
+        if (secs > 0) parts.push(`${secs}秒`);
+        if (milliseconds > 0 && parts.length <= 2) parts.push(`${milliseconds}毫秒`);
+        
+        return parts.length > 0 ? parts.join('') : '0秒';
+    }
 </script>
 {{/block}}

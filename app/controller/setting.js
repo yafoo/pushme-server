@@ -38,6 +38,16 @@ class Setting extends Admin
         this.$success('保存成功！');
     }
 
+    async status() {
+        this.$success({
+            memory: process.memoryUsage().heapUsed,
+            uptime: process.uptime(),
+            process: process.pid,
+            node: process.version,
+            platform: process.platform,
+        });
+    }
+
     
 
     
