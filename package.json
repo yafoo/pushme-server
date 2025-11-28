@@ -26,6 +26,7 @@
   "dependencies": {
     "aedes": "^0.51.3",
     "jj.js": "^0.17.0",
+    "selfsigned": "^4.0.0",
     "websocket-stream": "^5.5.2"
   },
   "engines": {

@@ -1,5 +1,5 @@
-const path = require('path');
 const {Context} = require('jj.js');
+const path = require('path');
 
 class Setting extends Context
 {

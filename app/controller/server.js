@@ -25,7 +25,14 @@ class Server extends Admin
     }
 
     async tlsCreate() {
-        this.$success('证书生成成功！');
+        const days = 3650;
+        const domain = this.ctx.request.hostname;
+        const res = await this.$libs.server.tlsCreate({domain, days});
+        if(res.state) {
+            this.$success('证书生成成功！');
+        } else {
+            this.$error(res.msg);
+        }
     }
 }
 
