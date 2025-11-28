@@ -27,7 +27,7 @@
         <div class="layui-tab-content">
             <!-- 系统信息 -->
             <div class="layui-tab-item layui-show">
-                <form class="layui-form layui-form-pane" action="" method="post">
+                <form class="layui-form layui-form-pane" action="" method="post" lay-filter="status">
                     <input type="hidden" name="form" value="status" />
                     <!-- <div class="layui-form-item">
                         <label class="layui-form-label">进程ID</label>
@@ -50,18 +50,17 @@
                         <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">客户端</label>
+                        <label class="layui-form-label">客户端数</label>
                         <div class="layui-form-mid layui-word-aux me-status-clients"></div>
                     </div>
 
                     <div class="layui-form-item">
                         <label class="layui-form-label">服务状态</label>
                         <div class="layui-input-block">
-                            <input type="checkbox" name="zzz" lay-skin="switch" lay-text="开启|关闭">
+                            <input type="checkbox" name="server" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
+                            <div class="layui-btn layui-btn-xs me-btn-server-restart" style="margin-top: 6px; margin-left: 10px; padding: 0 10px;">重启</div>
                         </div>
                     </div>
-
-                    {{include './form_submit.htm'}}
                 </form>
             </div>
 
@@ -91,7 +90,7 @@
                             <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
                             <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
                             <input type="radio" name="tls" value="self" title="自签名证书" lay-filter="tls" {{tls == 'self' ? 'checked' : ''}}>
-                            <button class="layui-btn layui-btn-xs me-btn-tls-self {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px;" lay-filter="tls">点击生成自签名证书</button>
+                            <div class="layui-btn layui-btn-xs me-btn-tls-create {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px; margin-left: 5px;">点击生成自签名证书</div>
                         </div>
                     </div>
 
@@ -133,19 +132,76 @@
             }
         });
 
+        // 服务操作
+        form.on('switch(server)', function(data) {
+            if(data.elem.checked === false) {
+                layer.confirm('确定关闭消息服务吗？', {icon: 3, title:'提示'},
+                function(index) {
+                    $.post('{{url("server/stop")}}', function(res) {
+                        layer.close(index);
+                        if(res.state) {
+                            layer.msg(res.msg, {icon: 1});
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    });
+                },
+                function(index) {
+                    form.val('status', {"server": true});
+                    layer.close(index);
+                });
+            } else {
+                $.post('{{url("server/start")}}', function(res) {
+                    if(res.state) {
+                        layer.msg(res.msg, {icon: 1});
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                        form.val('status', {"server": false});
+                    }
+                });
+            }
+        });
+        // 服务重启
+        $('.me-btn-server-restart').click(function() {
+            layer.confirm('确定重启消息服务吗？', {icon: 3, title:'提示'}, function(index) {
+                $.post('{{url("server/restart")}}', function(res) {
+                    layer.close(index);
+                    if(res.state) {
+                        layer.msg(res.msg, {icon: 1});
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                });
+            });
+        });
+
+        // 证书切换
         form.on('radio(tls)', function(data){
             if(data.value == 'self') {
-                $('.me-btn-tls-self').removeClass('layui-hide');
+                $('.me-btn-tls-create').removeClass('layui-hide');
             } else {
-                $('.me-btn-tls-self').addClass('layui-hide');
+                $('.me-btn-tls-create').addClass('layui-hide');
             }
+        });
+        // 生成证书
+        $('.me-btn-tls-create').click(function() {
+            layer.confirm('确定生成自签名证书吗？', {icon: 3, title:'提示'}, function(index) {
+                $.post('{{url("server/tls_create")}}', function(res) {
+                    layer.close(index);
+                    if(res.state) {
+                        layer.msg(res.msg, {icon: 1});
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                });
+            });
         });
 
         // 系统状态
         element = layui.element;
         let timer_status = null;
         const get_status = function() {
-            $.post('{{url("status")}}', function(res) {
+            $.post('{{url("server/status")}}', function(res) {
                 if(!res.state) return;
                 const data = res.data;
                 Object.keys(data).forEach(function(key) {
