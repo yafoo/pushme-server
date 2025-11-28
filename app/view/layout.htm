@@ -86,7 +86,7 @@
             {{if !is_install}}
             <li class="layui-nav-item {{cur_nav == 'install' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/install')}}">安装</a></li>
             {{else if is_login}}
-            <li class="layui-nav-item {{cur_nav == 'setting' ? 'layui-this' : ''}}" lay-unselect><a href="/setting">设置</a></li>
+            <li class="layui-nav-item {{cur_nav == 'setting' ? 'layui-this' : ''}}" lay-unselect><a href="/setting">管理</a></li>
             <li class="layui-nav-item {{cur_nav == 'logout' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/logout')}}">退出</a></li>
             {{else}}
             <li class="layui-nav-item {{cur_nav == 'login' ? 'layui-this' : ''}}" lay-unselect><a href="{{url('login/index')}}">登录</a></li>

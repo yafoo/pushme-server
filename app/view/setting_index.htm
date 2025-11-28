@@ -1,22 +1,82 @@
 {{extend './layout.htm'}}
 
+{{block 'css'}}
+<style>
+    .layui-tab-card {
+        box-shadow: none;
+    }
+    .layui-tab-card .layui-tab-content {
+        padding: 15px;
+    }
+</style>
+{{/block}}
+
 {{block 'main'}}
-    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">系统设置</h2></h2>
-    <div class="" style="margin: 20px 0;">
-        <form class="layui-form layui-form-pane" lay-filter="form" action="" method="post">
-            <div class="layui-form-item">
-                <label class="layui-form-label">push_key</label>
-                <div class="layui-input-block">
-                    <input type="text" name="push_key" value="{{push_key || ''}}" placeholder="请输入push_key，多个用','隔开" autocomplete="off" class="layui-input">
-                </div>
+    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">管理中心</h2></h2>
+    <div class="layui-tab layui-tab-card" style="margin-bottom: 0;">
+        <ul class="layui-tab-title">
+            <li class="layui-this">PushKey</li>
+            <li>TLS/SSL</li>
+            <li>账户密码</li>
+        </ul>
+        <div class="layui-tab-content">
+            <!-- PushKey -->
+            <div class="layui-tab-item layui-show">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <input type="hidden" name="form" value="push_key" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">push_key</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="push_key" value="{{push_key || ''}}" placeholder="请输入push_key，多个用','隔开" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit>提交</button>
+                        </div>
+                    </div>
+                </form>
             </div>
 
-            <div class="layui-form-item">
-                <div class="layui-input-block">
-                    <button class="layui-btn" lay-submit lay-filter="send">提交</button>
-                </div>
+            <!-- TLS/SSL -->
+            <div class="layui-tab-item">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <input type="hidden" name="form" value="tls" />
+                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">提示：证书文件目录为config/certs</blockquote>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">证书设置</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
+                            <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
+                            <input type="radio" name="tls" value="self" title="自签名证书" lay-filter="tls" {{tls == 'self' ? 'checked' : ''}}>
+                            <button class="layui-btn layui-btn-xs me-btn-tls-self {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px;" lay-filter="tls">点击生成自签名证书</button>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit>提交</button>
+                        </div>
+                    </div>
+                </form>
             </div>
-        </form>
+
+            <!-- 账户密码 -->
+            <div class="layui-tab-item">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <input type="hidden" name="form" value="user" />
+                    {{include './form_user.htm'}}
+                    {{include './form_password2.htm'}}
+
+                    <div class="layui-form-item">
+                        <div class="layui-input-block">
+                            <button class="layui-btn" lay-submit>提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 {{/block}}
 
@@ -27,9 +87,26 @@
         var form = layui.form;
         var $ = layui.$;
       
-        form.render().on('submit(send)', function(data) {
-            var field = data.field;
-            console.log(field);
+        form.on('submit', function(data) {
+            console.log(data.field);
+            if(data.field.form == 'user') {
+                if(!data.field.user || !data.field.password) {
+                    layer.msg('账号密码不能为空！', {icon: 2});
+                    return false;
+                }
+                if(data.field.password != data.field.password2) {
+                    layer.msg('两次输入密码不一致！', {icon: 2});
+                    return false;
+                }
+            }
+        });
+
+        form.on('radio(tls)', function(data){
+            if(data.value == 'self') {
+                $('.me-btn-tls-self').removeClass('layui-hide');
+            } else {
+                $('.me-btn-tls-self').addClass('layui-hide');
+            }
         });
     });
 </script>
