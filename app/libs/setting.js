@@ -13,6 +13,7 @@ class Setting extends Context
             user: this.$config.setting.user,
             password: this.$config.setting.password,
             tls: 'none',
+            status: this.$config.setting.status || 'start',
             ...data
         };
         const _parseKey = (push_key) => {
@@ -25,7 +26,8 @@ class Setting extends Context
     push_keys: [${setting.push_key}],
     user: '${setting.user}',
     password: '${setting.password}',
-    tls: '${setting.tls}'
+    tls: '${setting.tls}',
+    status: '${setting.status}',
 };`;
         const setting_file = path.join(this.$config.app.base_dir, './config/setting.js');
         await require('fs/promises').writeFile(setting_file, setting_str);

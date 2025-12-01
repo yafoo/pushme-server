@@ -1,27 +1,58 @@
 const {Logger, utils} = require('jj.js');
+const fs = require('fs');
+const path = require('path');
 
 class PushMe {
     constructor(port = 3100) {
         this._connectionCount = 0;
-        this.port = port;
-        this.aedes = createAedes();
-        this.setupServers();
+        this._port = port;
+        const certsDir = path.join(__dirname, 'config', 'certs');
+        this._keyPath = path.join(certsDir, 'private.key');
+        this.certPath = path.join(certsDir, 'cert.crt');
+        this._initSetting();
+        if(this._setting.status === 'start') {
+            this.start();
+        } else {
+            Logger.system('PushMe server 未开启');
+        }
     }
 
-    setupServers() {
+    _initSetting() {
+        const setting_path = path.join(__dirname, 'config', 'setting.js');
+        if(fs.existsSync(setting_path)) {
+            this._setting = require(setting_path);
+        } else {
+            this._setting = {};
+        }
+    }
+
+    _setupServers() {
+        // PushMe aedes
+        this.aedes = createAedes();
+
         // PushMe WebSocket
         this.httpServer = require('http').createServer((req, res) => {
             res.writeHead(404, { 'Content-Type': 'text/plain' });
             res.end('Not Found');
             Logger.debug(req.url, 'HTTP 404 Not Found');
         });
-        require('websocket-stream').createServer({ server: this.httpServer }, this.aedes.handle);
+        this.wsServer = require('websocket-stream').createServer({ server: this.httpServer }, this.aedes.handle);
 
         // PushMe Server
-        this.tcpServer = require('net').createServer(this.handleConnection.bind(this));
+        if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this.certPath)) {
+            const tlsOptions = {
+                key: fs.readFileSync(this._keyPath),
+                cert: fs.readFileSync(this.certPath),
+                requestCert: false,
+                rejectUnauthorized: false,
+            };
+            this.tcpServer = require('tls').createServer(tlsOptions, this._handleConnection.bind(this));
+        } else {
+            this.tcpServer = require('net').createServer(this._handleConnection.bind(this));
+        }
     }
 
-    handleConnection(socket) {
+    _handleConnection(socket) {
         this._connectionCount++;
         Logger.debug('New connection. Total:', this._connectionCount);
 
@@ -42,7 +73,7 @@ class PushMe {
             socket.removeListener('error', onError);
 
             // 快速协议检测
-            const protocol = this.detectProtocol(initialBuffer);
+            const protocol = this._detectProtocol(initialBuffer);
             socket.unshift(initialBuffer)
             if (protocol == 'mqtt') {
                 Logger.debug('TCP connection detected');
@@ -80,7 +111,7 @@ class PushMe {
         });
     }
 
-    detectProtocol(buffer) {
+    _detectProtocol(buffer) {
         if (buffer.length < 8) {
             return 'need_more_data'; // 数据不足，等待更多
         }
@@ -109,13 +140,83 @@ class PushMe {
     }
 
     start() {
-        this.tcpServer.listen(this.port, err => {
+        this._initSetting();
+        this._setupServers();
+        this.tcpServer.listen(this._port, err => {
             if(!err) {
-                Logger.system('PushMe server is started and listening on port', this.port);
+                Logger.system('PushMe server is started and listening on port', this._port);
             } else {
                 Logger.system('PushMe server start failed, error:', err);
             }
         });
+    }
+
+    async stop() {
+        if(!this.tcpServer) {
+            return '服务未启动';
+        }
+
+        try {
+            await new Promise((resolve, reject) => {
+                this.tcpServer.close(err => {
+                    if(!err) {
+                        Logger.system('PushMe mqtt server is stopped');
+                        resolve();
+                    } else {
+                        Logger.system('PushMe mqtt server stop failed, error:', err);
+                        reject(err);
+                    }
+                });
+            });
+
+            await new Promise((resolve, reject) => {
+                this.wsServer.close(err => {
+                    if(!err) {
+                        Logger.system('PushMe websocket server is stopped');
+                        resolve();
+                    } else {
+                        Logger.system('PushMe websocket server stop failed, error:', err);
+                        reject(err);
+                    }
+                });
+            });
+
+            await new Promise((resolve, reject) => {
+                this.httpServer.close(err => {
+                    if(!err) {
+                        Logger.system('PushMe http server is stopped');
+                        resolve();
+                    } else {
+                        Logger.system('PushMe http server stop failed, error:', err);
+                        reject(err);
+                    }
+                });
+            });
+
+            await closeAedes(this.aedes);
+            Logger.system('PushMe aedes server is stopped');
+            
+            this.tcpServer = null;
+            this.wsServer = null;
+            this.httpServer = null;
+            this.aedes = null;
+            this._connectionCount = 0;
+        } catch(err) {
+            Logger.system('PushMe aedes stop failed, error:', err);
+            return err.message;
+        }
+    }
+
+    get status() {
+        return this.tcpServer ? 'start' : 'stop';
+    }
+
+    get connectionCount() {
+        return this._connectionCount;
+    }
+
+    get clientCount() {
+        return this.aedes ? Object.keys(this.aedes.clients).length : 0;
     }
 
     /**
@@ -191,6 +292,21 @@ function createAedes() {
     });
 
     return aedes;
+}
+/**
+ * 重置参数
+ * @param {aedes} aedes
+ */
+function closeAedes(aedes) {
+    return new Promise((resolve, reject) => {
+        aedes.close((err) => {
+            if (err) {
+                reject(err)
+            } else {
+                resolve()
+            }
+        });
+    })
 }
 
 module.exports = PushMe;

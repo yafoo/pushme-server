@@ -50,15 +50,26 @@
                         <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
                     </div>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">总连接数</label>
+                        <div class="layui-form-mid layui-word-aux me-status-connection_count"></div>
+                    </div>
+                    <div class="layui-form-item">
                         <label class="layui-form-label">客户端数</label>
-                        <div class="layui-form-mid layui-word-aux me-status-clients"></div>
+                        <div class="layui-form-mid layui-word-aux me-status-client_count"></div>
                     </div>
 
                     <div class="layui-form-item">
-                        <label class="layui-form-label">服务状态</label>
+                        <label class="layui-form-label">消息服务</label>
                         <div class="layui-input-block">
                             <input type="checkbox" name="server" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
                             <div class="layui-btn layui-btn-xs me-btn-server-restart" style="margin-top: 6px; margin-left: 10px; padding: 0 10px;">重启</div>
+                        </div>
+                    </div>
+
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">系统操作</label>
+                        <div class="layui-input-block">
+                            <div class="layui-btn layui-btn-xs me-btn-system-restart" style="margin-top: 6px; margin-left: 10px; padding: 0 10px;">重启</div>
                         </div>
                     </div>
                 </form>
@@ -174,6 +185,19 @@
                 });
             });
         });
+        // 系统重启
+        $('.me-btn-system-restart').click(function() {
+            layer.confirm('确定重启系统吗？', {icon: 3, title:'提示'}, function(index) {
+                $.post('{{url("server/system_restart")}}', function(res) {
+                    layer.close(index);
+                    if(res.state) {
+                        layer.msg(res.msg, {icon: 1});
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                });
+            });
+        });
 
         // 证书切换
         form.on('radio(tls)', function(data){
@@ -211,6 +235,8 @@
                         value = `${memoryMB}MB(${value}B)`;
                     } else if(key == 'uptime') {
                         value = formatUptimeDetailed(value);
+                    } else if(key == 'status') {
+                        form.val('status', {"server": value == 'start'});
                     }
                     $('.me-status-' + key).text(value);
                 });

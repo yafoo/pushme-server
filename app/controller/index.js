@@ -49,11 +49,11 @@ class Index extends Base
 
         let result = 'success';
         if(!~push_key.indexOf(',')) {
-            result = await this.ctx.publish(push_key, msg);
+            result = await this.ctx.pushme.publish(push_key, msg);
         } else {
             const push_keys = push_key.split(',');
             for(let i = 0; i < push_keys.length; i++) {
-                push_keys[i] && this.ctx.publish(push_keys[i], msg);
+                push_keys[i] && this.ctx.pushme.publish(push_keys[i], msg);
             }
         }
 
