@@ -12,6 +12,19 @@
         color: #333!important;
         padding-left: 10px!important;
     }
+    #cert-content {
+        min-height: 200px;
+        font-family: 
+            "SF Mono",          /* macOS */
+            "Cascadia Code",    /* Windows Terminal */
+            "JetBrains Mono",   /* IDE 字体 */
+            "Fira Code",        /* 编程连字 */
+            "Source Code Pro",  /* Adobe 字体 */
+            "Roboto Mono",      /* Google 字体 */
+            "Ubuntu Mono",      /* Ubuntu */
+            Consolas,
+            monospace;
+    }
 </style>
 {{/block}}
 
@@ -82,7 +95,13 @@
                             <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
                             <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
                             <input type="radio" name="tls" value="self" title="自签名证书" lay-filter="tls" {{tls == 'self' ? 'checked' : ''}}>
-                            <div class="layui-btn layui-btn-sm me-btn-tls-create {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px; margin-left: 5px;">点击生成自签名证书</div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item me-tls-content {{tls == 'self' ? '' : 'layui-hide'}}">
+                        <label class="layui-form-label">证书内容</label>
+                        <div class="layui-input-block">
+                            <textarea id="cert-content" placeholder="" class="layui-textarea"></textarea>
+                            <div class="layui-btn layui-btn-danger layui-btn-sm me-btn-tls-create" style="margin-top: 6px;">点击生成自签名证书</div>
                         </div>
                     </div>
 
@@ -199,9 +218,9 @@
         // 证书切换
         form.on('radio(tls)', function(data){
             if(data.value == 'self') {
-                $('.me-btn-tls-create').removeClass('layui-hide');
+                $('.me-tls-content').removeClass('layui-hide');
             } else {
-                $('.me-btn-tls-create').addClass('layui-hide');
+                $('.me-tls-content').addClass('layui-hide');
             }
         });
         // 生成证书
@@ -210,6 +229,7 @@
                 $.post('{{url("server/tls_create")}}', function(res) {
                     layer.close(index);
                     if(res.state) {
+                        getCert();
                         layer.msg(res.msg, {icon: 1});
                     } else {
                         layer.msg(res.msg, {icon: 2});
@@ -217,6 +237,15 @@
                 });
             });
         });
+
+        // 获取自签名证书内容
+        const getCert = function() {
+            $.post('{{url("server/getCert")}}', res => {
+                getCert.is_init = true;
+                if(!res.state) return;
+                $('#cert-content').text(res.msg);
+            });
+        }
 
         // 系统状态
         element = layui.element;
@@ -254,6 +283,7 @@
         start_timer();
         layui.element.on('tab(setting)', function(data) {
             data.index == 0 ? start_timer() : stop_timer();
+            data.index == 1 && !getCert.is_init && getCert();
         });
     });
 

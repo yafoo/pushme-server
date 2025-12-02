@@ -46,6 +46,15 @@ class Server extends Admin
         }
     }
 
+    async getCert() {
+        const content = await this.$libs.tls.getCertContent();
+        if(content) {
+            this.$success(content);
+        } else {
+            this.$error('获取失败！');
+        }
+    }
+
     async systemRestart() {
         if (process.env.PM2) {
             process.send({ type: 'shutdown' });

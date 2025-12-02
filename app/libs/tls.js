@@ -82,6 +82,19 @@ class Tls extends Context
             });
         });
     }
+
+    async getCertContent() {
+        const certPath = path.join(this.$config.app.base_dir, './config/certs/cert.crt');
+        if (!fs.existsSync(certPath)) {
+            return '';
+        }
+        try {
+            const buffer = fs.readFileSync(certPath, 'utf8');
+            return buffer.toString();
+        } catch (e) {
+            return '';
+        }
+    }
 }
 
 module.exports = Tls;
