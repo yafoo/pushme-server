@@ -24,6 +24,9 @@ class Setting extends Admin
         } else if(form == 'tls') {
             const tls = this.$request.query('tls', 'none');
             await this.$libs.setting.save({tls});
+            if(tls != this.$config.setting.tls) {
+                await this.ctx.pushme.restart();
+            }
         } else if(form == 'user') {
             const user = this.$request.query('user');
             const password = this.$request.query('password');

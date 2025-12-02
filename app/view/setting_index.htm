@@ -20,35 +20,39 @@
     <div class="layui-tab layui-tab-card" lay-filter="setting" style="margin-bottom: 0;">
         <ul class="layui-tab-title">
             <li class="layui-this">系统信息</li>
-            <li>PushKey</li>
             <li>TLS/SSL</li>
+            <li>PushKey</li>
             <li>账户密码</li>
         </ul>
         <div class="layui-tab-content">
             <!-- 系统信息 -->
             <div class="layui-tab-item layui-show">
                 <form class="layui-form layui-form-pane" action="" method="post" lay-filter="status">
-                    <input type="hidden" name="form" value="status" />
-                    <!-- <div class="layui-form-item">
-                        <label class="layui-form-label">进程ID</label>
-                        <div class="layui-form-mid layui-word-aux me-status-process"></div>
-                    </div> -->
+                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">系统信息</blockquote>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">内存</label>
-                        <div class="layui-form-mid layui-word-aux me-status-memory"></div>
+                        <label class="layui-form-label">操作系统</label>
+                        <div class="layui-form-mid layui-word-aux me-status-platform"></div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">node</label>
+                        <label class="layui-form-label">Node版本</label>
                         <div class="layui-form-mid layui-word-aux me-status-node"></div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">系统</label>
-                        <div class="layui-form-mid layui-word-aux me-status-platform"></div>
+                        <label class="layui-form-label">内存占用</label>
+                        <div class="layui-form-mid layui-word-aux me-status-memory"></div>
                     </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">运行时间</label>
                         <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
                     </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">系统重启</label>
+                        <div class="layui-input-block">
+                            <div class="layui-btn layui-btn-sm me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                        </div>
+                    </div>
+
+                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">服务信息</blockquote>
                     <div class="layui-form-item">
                         <label class="layui-form-label">总连接数</label>
                         <div class="layui-form-mid layui-word-aux me-status-connection_count"></div>
@@ -57,21 +61,32 @@
                         <label class="layui-form-label">客户端数</label>
                         <div class="layui-form-mid layui-word-aux me-status-client_count"></div>
                     </div>
-
                     <div class="layui-form-item">
-                        <label class="layui-form-label">消息服务</label>
+                        <label class="layui-form-label">服务状态</label>
                         <div class="layui-input-block">
                             <input type="checkbox" name="server" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
-                            <div class="layui-btn layui-btn-xs me-btn-server-restart" style="margin-top: 6px; margin-left: 10px; padding: 0 10px;">重启</div>
+                            <div class="layui-btn layui-btn-sm me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TLS/SSL -->
+            <div class="layui-tab-item">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">提示：证书文件目录为config/certs</blockquote>
+                    <input type="hidden" name="form" value="tls" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">证书设置</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
+                            <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
+                            <input type="radio" name="tls" value="self" title="自签名证书" lay-filter="tls" {{tls == 'self' ? 'checked' : ''}}>
+                            <div class="layui-btn layui-btn-sm me-btn-tls-create {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px; margin-left: 5px;">点击生成自签名证书</div>
                         </div>
                     </div>
 
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">系统操作</label>
-                        <div class="layui-input-block">
-                            <div class="layui-btn layui-btn-xs me-btn-system-restart" style="margin-top: 6px; margin-left: 10px; padding: 0 10px;">重启</div>
-                        </div>
-                    </div>
+                    {{include './form_submit.htm'}}
                 </form>
             </div>
 
@@ -83,25 +98,6 @@
                         <label class="layui-form-label">push_key</label>
                         <div class="layui-input-block">
                             <input type="text" name="push_key" value="{{push_key || ''}}" placeholder="请输入push_key，多个用','隔开" autocomplete="off" class="layui-input">
-                        </div>
-                    </div>
-
-                    {{include './form_submit.htm'}}
-                </form>
-            </div>
-
-            <!-- TLS/SSL -->
-            <div class="layui-tab-item">
-                <form class="layui-form layui-form-pane" action="" method="post">
-                    <input type="hidden" name="form" value="tls" />
-                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">提示：证书文件目录为config/certs</blockquote>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">证书设置</label>
-                        <div class="layui-input-block">
-                            <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
-                            <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
-                            <input type="radio" name="tls" value="self" title="自签名证书" lay-filter="tls" {{tls == 'self' ? 'checked' : ''}}>
-                            <div class="layui-btn layui-btn-xs me-btn-tls-create {{tls == 'self' ? '' : 'layui-hide'}}" style="margin-top: 6px; margin-left: 5px;">点击生成自签名证书</div>
                         </div>
                     </div>
 
@@ -147,20 +143,21 @@
         form.on('switch(server)', function(data) {
             if(data.elem.checked === false) {
                 layer.confirm('确定关闭消息服务吗？', {icon: 3, title:'提示'},
-                function(index) {
-                    $.post('{{url("server/stop")}}', function(res) {
+                    function(index) {
+                        $.post('{{url("server/stop")}}', function(res) {
+                            layer.close(index);
+                            if(res.state) {
+                                layer.msg(res.msg, {icon: 1});
+                            } else {
+                                layer.msg(res.msg, {icon: 2});
+                            }
+                        });
+                    },
+                    function(index) {
+                        form.val('status', {"server": true});
                         layer.close(index);
-                        if(res.state) {
-                            layer.msg(res.msg, {icon: 1});
-                        } else {
-                            layer.msg(res.msg, {icon: 2});
-                        }
-                    });
-                },
-                function(index) {
-                    form.val('status', {"server": true});
-                    layer.close(index);
-                });
+                    }
+                );
             } else {
                 $.post('{{url("server/start")}}', function(res) {
                     if(res.state) {
@@ -209,7 +206,7 @@
         });
         // 生成证书
         $('.me-btn-tls-create').click(function() {
-            layer.confirm('确定生成自签名证书吗？', {icon: 3, title:'提示'}, function(index) {
+            layer.confirm('此操作会覆盖已存在证书，生成后服务会自动重启。', {icon: 3, title:'确定生成吗？'}, function(index) {
                 $.post('{{url("server/tls_create")}}', function(res) {
                     layer.close(index);
                     if(res.state) {

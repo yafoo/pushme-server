@@ -158,19 +158,20 @@ class PushMe {
 
         try {
             await new Promise((resolve, reject) => {
-                this.tcpServer.close(err => {
+                this.tcpServer && this.tcpServer.close(err => {
                     if(!err) {
-                        Logger.system('PushMe mqtt server is stopped');
+                        Logger.system('PushMe tcp server is stopped');
                         resolve();
                     } else {
-                        Logger.system('PushMe mqtt server stop failed, error:', err);
+                        Logger.system('PushMe tcp server stop failed, error:', err);
                         reject(err);
                     }
                 });
+                !this.tcpServer && resolve();
             });
 
             await new Promise((resolve, reject) => {
-                this.wsServer.close(err => {
+                this.wsServer && this.wsServer.close(err => {
                     if(!err) {
                         Logger.system('PushMe websocket server is stopped');
                         resolve();
@@ -179,10 +180,11 @@ class PushMe {
                         reject(err);
                     }
                 });
+                !this.wsServer && resolve();
             });
 
             await new Promise((resolve, reject) => {
-                this.httpServer.close(err => {
+                this.httpServer && this.httpServer.listening && this.httpServer.close(err => {
                     if(!err) {
                         Logger.system('PushMe http server is stopped');
                         resolve();
@@ -191,18 +193,19 @@ class PushMe {
                         reject(err);
                     }
                 });
+                (!this.httpServer || !this.httpServer.listening) && resolve();
             });
 
-            await closeAedes(this.aedes);
-            Logger.system('PushMe aedes server is stopped');
+            this.aedes && await closeAedes(this.aedes);
             
             this.tcpServer = null;
             this.wsServer = null;
             this.httpServer = null;
             this.aedes = null;
             this._connectionCount = 0;
+            return '关闭成功';
         } catch(err) {
-            Logger.system('PushMe aedes stop failed, error:', err);
+            Logger.system('PushMe stop failed, error:', err);
             return err.message;
         }
     }
@@ -301,8 +304,10 @@ function closeAedes(aedes) {
     return new Promise((resolve, reject) => {
         aedes.close((err) => {
             if (err) {
+                Logger.system('PushMe aedes server stop failed, error:', err);
                 reject(err)
             } else {
+                Logger.system('PushMe aedes server is stopped');
                 resolve()
             }
         });

@@ -1,0 +1,87 @@
+const {Context} = require('jj.js');
+const fs = require('fs');
+const path = require('path');
+
+class Tls extends Context
+{
+    async create(opts = {}) {
+        const attrs = [
+            { name: 'commonName', value: opts.domian || 'loacalhost' }, // 常用名（域名）
+            { name: 'countryName', value: opts.country || 'CN' },                // 国家代码（2字母）
+            // { name: 'stateOrProvinceName', value: opts.state || 'H' },     // 州/省
+            // { name: 'localityName', value: opts.city || 'L' },             // 城市
+            { name: 'organizationName', value: 'PushMe' }, // 组织名称
+            // { name: 'organizationalUnitName', value: 'PushMe' } // 部门
+        ];
+        // 扩展选项 - 包含 SAN (Subject Alternative Names)
+        const extensions = [
+            {
+                name: 'subjectAltName',
+                altNames: [
+                    // DNS 名称
+                    { type: 2, value: 'mqtt-server.local' },
+                    { type: 2, value: 'localhost' },
+                    { type: 2, value: '*.mqtt-server.local' },
+
+                    // IP 地址 (IPv4)
+                    { type: 7, ip: '127.0.0.1' },
+                    { type: 7, ip: '192.168.1.100' },
+                    { type: 7, ip: '10.0.0.1' },
+                    { type: 7, ip: '128.1.128.55' },
+
+                    // IP 地址 (IPv6)
+                    { type: 7, ip: '::1' },
+                    { type: 7, ip: 'fe80::1' }
+                ]
+            },
+            // 添加密钥用法扩展
+            {
+                name: 'keyUsage',
+                digitalSignature: true,
+                keyEncipherment: true,
+                serverAuth: true
+            },
+            // 添加增强密钥用法
+            // {
+            //     name: 'extKeyUsage',
+            //     serverAuth: true,
+            //     clientAuth: true
+            // }
+        ];
+        const options = {
+            algorithm: 'sha256',
+            days: opts.days || 365 * 10,
+            keySize: opts.size || 2048,
+            extensions: extensions,  // 扩展
+        };
+
+        try {
+            const pems = await this._generate(attrs, options);
+            const certDir = path.join(this.$config.app.base_dir, './config/certs');
+            if (!fs.existsSync(certDir)) {
+                fs.mkdirSync(certDir, { recursive: true });
+            }
+            // 保存私钥
+            fs.writeFileSync(path.join(certDir, 'private.key'), pems.private);
+            // 保存证书
+            fs.writeFileSync(path.join(certDir, 'cert.crt'), pems.cert);
+            return {state: 1, msg: '证书生成成功'};
+        } catch (e) {
+            return {state: 0, msg: e.message};
+        }
+    }
+
+    async _generate(attrs = [], options = {}) {
+        return new Promise((resolve, reject) => {
+            require('selfsigned').generate(attrs, options, function(err, pems) {
+                if(err) {
+                    reject(err);
+                } else {
+                    resolve(pems);
+                }
+            });
+        });
+    }
+}
+
+module.exports = Tls;

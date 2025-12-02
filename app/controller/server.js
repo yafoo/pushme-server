@@ -22,7 +22,7 @@ class Server extends Admin
     }
 
     async stop() {
-        await this.$libs.setting.save({status: 'start'});
+        await this.$libs.setting.save({status: 'stop'});
         await this.ctx.pushme.stop();
         this.$success('服务已关闭！');
     }
@@ -35,9 +35,11 @@ class Server extends Admin
     async tlsCreate() {
         const days = 3650;
         const domain = this.ctx.request.hostname;
-        const res = await this.$libs.server.tlsCreate({domain, days});
+        const res = await this.$libs.tls.create({domain, days});
         if(res.state) {
-            await this.ctx.pushme.restart();
+            if(this.$config.setting.tls != '无证书') {
+                await this.ctx.pushme.restart();
+            }
             this.$success('证书生成成功！');
         } else {
             this.$error(res.msg);
