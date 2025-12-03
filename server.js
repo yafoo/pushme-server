@@ -92,14 +92,7 @@ const listenErr = err => {
 if(setting.panel_tls != 'tls') {
     app.listen(panel_port, listenErr);
 } else {
-    const tlsOptions = {
-        key: fs.readFileSync(pushme._keyPath),
-        cert: fs.readFileSync(pushme._certPath),
-        requestCert: false,
-        rejectUnauthorized: false,
-    };
-    const tlsApp = require('https').createServer(tlsOptions, app.callback());
-    tlsApp.listen(panel_port, listenErr);
+    require('https').createServer(pushme.tlsOptions, app.callback()).listen(panel_port, listenErr);
 }
 
 // 保存数据

@@ -27,6 +27,15 @@ class PushMe {
         }
     }
 
+    get tlsOptions() {
+        return {
+            key: fs.readFileSync(this._keyPath),
+            cert: fs.readFileSync(this._certPath),
+            requestCert: false,
+            rejectUnauthorized: false,
+        };
+    }
+
     _setupServers() {
         // PushMe aedes
         this.aedes = createAedes();
@@ -41,13 +50,7 @@ class PushMe {
 
         // PushMe Server
         if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
-            const tlsOptions = {
-                key: fs.readFileSync(this._keyPath),
-                cert: fs.readFileSync(this._certPath),
-                requestCert: false,
-                rejectUnauthorized: false,
-            };
-            this.tcpServer = require('tls').createServer(tlsOptions, this._handleConnection.bind(this));
+            this.tcpServer = require('tls').createServer(this.tlsOptions, this._handleConnection.bind(this));
         } else {
             this.tcpServer = require('net').createServer(this._handleConnection.bind(this));
         }
