@@ -2,7 +2,6 @@ const {App, Logger} = require('jj.js');
 const PushMe = require('./pushme.js');
 const fs = require('fs');
 const path = require('path');
-const { get } = require('jj.js/lib/cache.js');
 
 // 获取数据
 const getMessageCount = () => {
@@ -61,6 +60,13 @@ const PushmeStatus = {
     get panelPort() {
         return panel_port;
     },
+    appRestart: async() => {
+        if (process.env.PM2) {
+            process.send({type: 'shutdown'});
+        } else {
+            process.exit(0);
+        }
+    }
 }
 
 // 保存数据

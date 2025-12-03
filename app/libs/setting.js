@@ -13,6 +13,7 @@ class Setting extends Context
             user: this.$config.setting.user,
             password: this.$config.setting.password,
             tls: 'none',
+            panel_tls: 'none',
             status: this.$config.setting.status || 'start',
             ...data
         };
@@ -27,6 +28,7 @@ class Setting extends Context
     user: '${setting.user}',
     password: '${setting.password}',
     tls: '${setting.tls}',
+    panel_tls: '${setting.panel_tls}',
     status: '${setting.status}',
 };`;
         const setting_file = path.join(this.$config.app.base_dir, './config/setting.js');

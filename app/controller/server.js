@@ -60,11 +60,10 @@ class Server extends Admin
     }
 
     async systemRestart() {
-        if (process.env.PM2) {
-            process.send({ type: 'shutdown' });
-        } else {
-            process.exit(0);
-        }
+        setTimeout(async () => {
+            await this.ctx.pushme.appRestart();
+        }, 3000);
+        this.$success('操作成功！');
     }
 }
 

@@ -125,7 +125,7 @@
                     <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge layui-bg-green">./config/certs/</span>，私钥文件名为：<span class="layui-badge layui-bg-green">private.key</span>，证书文件名为：<span class="layui-badge layui-bg-green">cert.crt</span></blockquote>
                     <input type="hidden" name="form" value="tls" />
                     <div class="layui-form-item">
-                        <label class="layui-form-label">证书设置</label>
+                        <label class="layui-form-label">服务证书</label>
                         <div class="layui-input-block">
                             <input type="radio" name="tls" value="none" title="无证书" lay-filter="tls" {{tls == 'none' ? 'checked' : ''}}>
                             <input type="radio" name="tls" value="public" title="公共证书" lay-filter="tls" {{tls == 'public' ? 'checked' : ''}}>
@@ -137,6 +137,13 @@
                         <div class="layui-input-block">
                             <textarea id="cert-content" placeholder="" class="layui-textarea"></textarea>
                             <div class="layui-btn layui-btn-danger layui-btn-sm me-btn-tls-create">点击生成自签名证书</div>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">面板证书</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="panel_tls" value="none" title="无证书" lay-filter="panel_tls" {{panel_tls == 'none' ? 'checked' : ''}}>
+                            <input type="radio" name="panel_tls" value="tls" title="共用服务证书（浏览器需导入证书才能访问）" lay-filter="panel_tls" {{panel_tls == 'tls' ? 'checked' : ''}}>
                         </div>
                     </div>
 
@@ -191,6 +198,20 @@
                     return false;
                 }
             }
+
+            $.post('', data.field, function(res) {
+                if(res.state) {
+                    layer.msg(res.msg, {icon: 1});
+                    if(~res.msg.indexOf('系统将自动重启')) {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
+                    }
+                } else {
+                    layer.msg(res.msg, {icon: 2});
+                }
+            });
+            return false;
         });
 
         // 服务操作
@@ -243,6 +264,9 @@
                     layer.close(index);
                     if(res.state) {
                         layer.msg(res.msg, {icon: 1});
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }
