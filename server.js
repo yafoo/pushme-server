@@ -3,9 +3,9 @@ const PushMe = require('./pushme.js');
 const fs = require('fs');
 const path = require('path');
 
-// 获取数据
+// 获取消息发送数量
+const dataPath = path.join(__dirname, 'config', 'data.json');
 const getMessageCount = () => {
-    const dataPath = path.join(__dirname, 'config', 'data.json');
     if (!fs.existsSync(dataPath)) {
         return 0;
     }
@@ -13,11 +13,18 @@ const getMessageCount = () => {
     return data.messageCount;
 }
 const saveMessageCount = () => {
-    const dataPath = path.join(__dirname, 'config', 'data.json');
     fs.writeFileSync(dataPath, JSON.stringify({
         messageCount: PushmeStatus.messageCount,
     }, null, 2));
 }
+// 获取配置数据
+const setting = (() => {
+    const settingPath = path.join(__dirname, 'config', 'setting.js');
+    if (!fs.existsSync(settingPath)) {
+        return {};
+    }
+    return require(settingPath);
+})();
 
 // PushMe server
 const server_port = 3100;
@@ -69,6 +76,32 @@ const PushmeStatus = {
     }
 }
 
+// PushMe panel
+const panel_port = 3010;
+const app = new App(async(ctx, next) => {
+    ctx.pushme = PushmeStatus;
+    await next();
+});
+const listenErr = err => {
+    if(!err) {
+        Logger.system('PushMe panel+api is started and listening on port', panel_port);
+    } else {
+        Logger.error('PushMe panel+api start failed, error:', err);
+    }
+}
+if(setting.panel_tls != 'tls') {
+    app.listen(panel_port, listenErr);
+} else {
+    const tlsOptions = {
+        key: fs.readFileSync(pushme._keyPath),
+        cert: fs.readFileSync(pushme._certPath),
+        requestCert: false,
+        rejectUnauthorized: false,
+    };
+    const tlsApp = require('https').createServer(tlsOptions, app.callback());
+    tlsApp.listen(panel_port, listenErr);
+}
+
 // 保存数据
 process.on('SIGTERM', async () => {
     Logger.system('Process SIGTERM')
@@ -79,18 +112,4 @@ process.on('SIGINT', async () => {
     Logger.system('Process SIGINT')
     saveMessageCount();
     process.exit(0)
-});
-
-// PushMe panel
-const app = new App();
-const panel_port = 3010;
-app.use(async(ctx, next) => {
-    ctx.pushme = PushmeStatus;
-    await next();
-}).listen(panel_port, err => {
-    if(!err) {
-        Logger.system('PushMe panel+api is started and listening on port', panel_port);
-    } else {
-        Logger.error('PushMe panel+api start failed, error:', err);
-    }
 });

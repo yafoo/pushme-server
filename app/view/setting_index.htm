@@ -204,7 +204,11 @@
                     layer.msg(res.msg, {icon: 1});
                     if(~res.msg.indexOf('系统将自动重启')) {
                         setTimeout(function() {
-                            location.reload();
+                            if(data.field.panel_tls == 'none') {
+                                location.replace(location.href.replace('https://', 'http://'));
+                            } else {
+                                location.replace(location.href.replace('http://', 'https://'));
+                            }
                         }, 3000);
                     }
                 } else {
@@ -265,7 +269,11 @@
                     if(res.state) {
                         layer.msg(res.msg, {icon: 1});
                         setTimeout(function() {
-                            location.reload();
+                            if(data.field.panel_tls == 'none') {
+                                location.replace(location.href.replace('https://', 'http://'));
+                            } else {
+                                location.replace(location.href.replace('http://', 'https://'));
+                            }
                         }, 3000);
                     } else {
                         layer.msg(res.msg, {icon: 2});
