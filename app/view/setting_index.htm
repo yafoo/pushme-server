@@ -12,7 +12,25 @@
         color: #333!important;
         padding-left: 10px!important;
     }
+    .me-quote {
+        padding-top: 8px;
+        padding-bottom: 8px;
+        font-size: 12px;
+    }
+    .me-status-pane {
+        display: flex;
+        gap: 10px;
+    }
+    .me-status-pane>div {
+        flex: 1;
+    }
+    @media screen and (max-width: 767.99px) {
+        .me-status-pane {
+            display: block;
+        }
+    }
     #cert-content {
+        padding-top: 48px;
         min-height: 200px;
         font-family: 
             "SF Mono",          /* macOS */
@@ -24,6 +42,11 @@
             "Ubuntu Mono",      /* Ubuntu */
             Consolas,
             monospace;
+    }
+    .me-btn-tls-create {
+        position: absolute;
+        left: 10px;
+        top: 6px;
     }
 </style>
 {{/block}}
@@ -40,53 +63,57 @@
         <div class="layui-tab-content">
             <!-- 系统信息 -->
             <div class="layui-tab-item layui-show">
-                <form class="layui-form layui-form-pane" action="" method="post" lay-filter="status">
-                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">系统信息</blockquote>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">操作系统</label>
-                        <div class="layui-form-mid layui-word-aux me-status-platform"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">Node版本</label>
-                        <div class="layui-form-mid layui-word-aux me-status-node"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">内存占用</label>
-                        <div class="layui-form-mid layui-word-aux me-status-memory"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">运行时间</label>
-                        <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">系统重启</label>
-                        <div class="layui-input-block">
-                            <div class="layui-btn layui-btn-sm me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                <form class="layui-form layui-form-pane me-status-pane" action="" method="post" lay-filter="status">
+                    <div id="me-status-left">
+                        <blockquote class="layui-elem-quote layui-font-red me-quote">系统信息（<span class="me-status-panel_port"></span>）</blockquote>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">操作系统</label>
+                            <div class="layui-form-mid layui-word-aux me-status-platform"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">Node版本</label>
+                            <div class="layui-form-mid layui-word-aux me-status-node"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">内存占用</label>
+                            <div class="layui-form-mid layui-word-aux me-status-memory"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">运行时间</label>
+                            <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">系统重启</label>
+                            <div class="layui-input-block">
+                                <div class="layui-btn layui-btn-sm me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                            </div>
                         </div>
                     </div>
 
-                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">服务信息</blockquote>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">消息总数</label>
-                        <div class="layui-form-mid layui-word-aux me-status-message_count"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">总连接数</label>
-                        <div class="layui-form-mid layui-word-aux me-status-connection_count"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">客户端数</label>
-                        <div class="layui-form-mid layui-word-aux me-status-client_count"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">运行时间</label>
-                        <div class="layui-form-mid layui-word-aux me-status-pushme_uptime"></div>
-                    </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">服务状态</label>
-                        <div class="layui-input-block">
-                            <input type="checkbox" name="pushme_status" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
-                            <div class="layui-btn layui-btn-sm me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                    <div id="me-status-right">
+                        <blockquote class="layui-elem-quote layui-font-red me-quote">服务信息（<span class="me-status-server_port"></span>）</blockquote>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">消息总数</label>
+                            <div class="layui-form-mid layui-word-aux me-status-message_count"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">总连接数</label>
+                            <div class="layui-form-mid layui-word-aux me-status-connection_count"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">客户端数</label>
+                            <div class="layui-form-mid layui-word-aux me-status-client_count"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">运行时间</label>
+                            <div class="layui-form-mid layui-word-aux me-status-pushme_uptime"></div>
+                        </div>
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">服务状态</label>
+                            <div class="layui-input-block">
+                                <input type="checkbox" name="pushme_status" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
+                                <div class="layui-btn layui-btn-sm me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                            </div>
                         </div>
                     </div>
                 </form>
@@ -95,7 +122,7 @@
             <!-- TLS/SSL -->
             <div class="layui-tab-item">
                 <form class="layui-form layui-form-pane" action="" method="post">
-                    <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">提示：证书文件目录为config/certs</blockquote>
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge layui-bg-green">./config/certs/</span>，私钥文件名为：<span class="layui-badge layui-bg-green">private.key</span>，证书文件名为：<span class="layui-badge layui-bg-green">cert.crt</span></blockquote>
                     <input type="hidden" name="form" value="tls" />
                     <div class="layui-form-item">
                         <label class="layui-form-label">证书设置</label>
@@ -109,7 +136,7 @@
                         <label class="layui-form-label">证书内容</label>
                         <div class="layui-input-block">
                             <textarea id="cert-content" placeholder="" class="layui-textarea"></textarea>
-                            <div class="layui-btn layui-btn-danger layui-btn-sm me-btn-tls-create" style="margin-top: 6px;">点击生成自签名证书</div>
+                            <div class="layui-btn layui-btn-danger layui-btn-sm me-btn-tls-create">点击生成自签名证书</div>
                         </div>
                     </div>
 

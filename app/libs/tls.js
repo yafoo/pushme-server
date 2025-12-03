@@ -4,6 +4,21 @@ const path = require('path');
 
 class Tls extends Context
 {
+    constructor(ctx) {
+        super(ctx);
+        this.certsDir = path.join(this.$config.app.base_dir, './config/certs');
+        this.keyPath = path.join(this.certsDir, 'private.key');
+        this.certPath = path.join(this.certsDir, 'cert.crt');
+    }
+
+    existsKey() {
+        return fs.existsSync(this.keyPath);
+    }
+
+    existsCert() {
+        return fs.existsSync(this.certPath);
+    }
+
     async create(opts = {}) {
         const attrs = [
             { name: 'commonName', value: opts.domian || 'loacalhost' }, // 常用名（域名）
@@ -57,14 +72,13 @@ class Tls extends Context
 
         try {
             const pems = await this._generate(attrs, options);
-            const certDir = path.join(this.$config.app.base_dir, './config/certs');
-            if (!fs.existsSync(certDir)) {
-                fs.mkdirSync(certDir, { recursive: true });
+            if (!fs.existsSync(this.certsDir)) {
+                fs.mkdirSync(this.certsDir, { recursive: true });
             }
             // 保存私钥
-            fs.writeFileSync(path.join(certDir, 'private.key'), pems.private);
+            fs.writeFileSync(this.keyPath, pems.private);
             // 保存证书
-            fs.writeFileSync(path.join(certDir, 'cert.crt'), pems.cert);
+            fs.writeFileSync(this.certPath, pems.cert);
             return {state: 1, msg: '证书生成成功'};
         } catch (e) {
             return {state: 0, msg: e.message};
@@ -84,12 +98,11 @@ class Tls extends Context
     }
 
     async getCertContent() {
-        const certPath = path.join(this.$config.app.base_dir, './config/certs/cert.crt');
-        if (!fs.existsSync(certPath)) {
+        if (!this.existsCert()) {
             return '';
         }
         try {
-            const buffer = fs.readFileSync(certPath, 'utf8');
+            const buffer = fs.readFileSync(this.certPath, 'utf8');
             return buffer.toString();
         } catch (e) {
             return '';

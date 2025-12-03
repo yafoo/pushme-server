@@ -2,6 +2,7 @@ const {App, Logger} = require('jj.js');
 const PushMe = require('./pushme.js');
 const fs = require('fs');
 const path = require('path');
+const { get } = require('jj.js/lib/cache.js');
 
 // 获取数据
 const getMessageCount = () => {
@@ -20,7 +21,8 @@ const saveMessageCount = () => {
 }
 
 // PushMe server
-const pushme = new PushMe();
+const server_port = 3100;
+const pushme = new PushMe(server_port);
 const PushmeStatus = {
     _messageCount: getMessageCount(),
     get messageCount() {
@@ -53,6 +55,12 @@ const PushmeStatus = {
     get connectionCount() {
         return pushme.connectionCount;
     },
+    get serverPort() {
+        return server_port;
+    },
+    get panelPort() {
+        return panel_port;
+    },
 }
 
 // 保存数据
@@ -68,15 +76,14 @@ process.on('SIGINT', async () => {
 });
 
 // PushMe panel
-const port = 3010;
 const app = new App();
-
+const panel_port = 3010;
 app.use(async(ctx, next) => {
     ctx.pushme = PushmeStatus;
     await next();
-}).listen(port, err => {
+}).listen(panel_port, err => {
     if(!err) {
-        Logger.system('PushMe panel+api is started and listening on port', port);
+        Logger.system('PushMe panel+api is started and listening on port', panel_port);
     } else {
         Logger.error('PushMe panel+api start failed, error:', err);
     }

@@ -14,6 +14,8 @@ class Server extends Admin
             client_count: this.ctx.pushme.clientCount,
             connection_count: this.ctx.pushme.connectionCount,
             pushme_uptime: this.ctx.pushme.uptime,
+            server_port: this.ctx.pushme.serverPort,
+            panel_port: this.ctx.pushme.panelPort,
         });
     }
 

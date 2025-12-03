@@ -7,9 +7,9 @@ class PushMe {
         this._ontime = 0;
         this._connectionCount = 0;
         this._port = port;
-        const certsDir = path.join(__dirname, 'config', 'certs');
-        this._keyPath = path.join(certsDir, 'private.key');
-        this.certPath = path.join(certsDir, 'cert.crt');
+        this._certsDir = path.join(__dirname, 'config', 'certs');
+        this._keyPath = path.join(this._certsDir, 'private.key');
+        this._certPath = path.join(this._certsDir, 'cert.crt');
         this._initSetting();
         if(this._setting.status === 'start') {
             this.start();
@@ -40,10 +40,10 @@ class PushMe {
         this.wsServer = require('websocket-stream').createServer({ server: this.httpServer }, this.aedes.handle);
 
         // PushMe Server
-        if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this.certPath)) {
+        if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
             const tlsOptions = {
                 key: fs.readFileSync(this._keyPath),
-                cert: fs.readFileSync(this.certPath),
+                cert: fs.readFileSync(this._certPath),
                 requestCert: false,
                 rejectUnauthorized: false,
             };

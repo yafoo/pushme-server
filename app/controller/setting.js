@@ -23,6 +23,10 @@ class Setting extends Admin
             await this.$libs.setting.save({push_key});
         } else if(form == 'tls') {
             const tls = this.$request.query('tls', 'none');
+            // 验证是否存在
+            if(tls != 'none' && (!this.$libs.tls.existsKey() || !this.$libs.tls.existsCert())) {
+                return this.$error(tls == 'public' ? '证书不存在' : '请先生成自签名证书');
+            }
             await this.$libs.setting.save({tls});
             if(tls != this.$config.setting.tls) {
                 await this.ctx.pushme.restart();
