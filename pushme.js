@@ -4,6 +4,7 @@ const path = require('path');
 
 class PushMe {
     constructor(port = 3100) {
+        this._ontime = 0;
         this._connectionCount = 0;
         this._port = port;
         const certsDir = path.join(__dirname, 'config', 'certs');
@@ -144,6 +145,7 @@ class PushMe {
         this._setupServers();
         this.tcpServer.listen(this._port, err => {
             if(!err) {
+                this._ontime = Date.now();
                 Logger.system('PushMe server is started and listening on port', this._port);
             } else {
                 Logger.system('PushMe server start failed, error:', err);
@@ -208,6 +210,10 @@ class PushMe {
             Logger.system('PushMe stop failed, error:', err);
             return err.message;
         }
+    }
+
+    get uptime() {
+        return this.status == 'start' ? (Date.now() - this._ontime) / 1000 : 0;
     }
 
     get status() {

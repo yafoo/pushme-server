@@ -67,6 +67,10 @@
 
                     <blockquote class="layui-elem-quote layui-font-red" style="padding-top: 5px; padding-bottom: 5px; font-size: 12px;">服务信息</blockquote>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">消息总数</label>
+                        <div class="layui-form-mid layui-word-aux me-status-message_count"></div>
+                    </div>
+                    <div class="layui-form-item">
                         <label class="layui-form-label">总连接数</label>
                         <div class="layui-form-mid layui-word-aux me-status-connection_count"></div>
                     </div>
@@ -75,9 +79,13 @@
                         <div class="layui-form-mid layui-word-aux me-status-client_count"></div>
                     </div>
                     <div class="layui-form-item">
+                        <label class="layui-form-label">运行时间</label>
+                        <div class="layui-form-mid layui-word-aux me-status-pushme_uptime"></div>
+                    </div>
+                    <div class="layui-form-item">
                         <label class="layui-form-label">服务状态</label>
                         <div class="layui-input-block">
-                            <input type="checkbox" name="server" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
+                            <input type="checkbox" name="pushme_status" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
                             <div class="layui-btn layui-btn-sm me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
                         </div>
                     </div>
@@ -173,7 +181,7 @@
                         });
                     },
                     function(index) {
-                        form.val('status', {"server": true});
+                        form.val('status', {pushme_status: true});
                         layer.close(index);
                     }
                 );
@@ -183,7 +191,7 @@
                         layer.msg(res.msg, {icon: 1});
                     } else {
                         layer.msg(res.msg, {icon: 2});
-                        form.val('status', {"server": false});
+                        form.val('status', {pushme_status: false});
                     }
                 });
             }
@@ -259,10 +267,10 @@
                     if(key == 'memory') {
                         const memoryMB = (value / 1024 / 1024).toFixed(2);
                         value = `${memoryMB}MB(${value}B)`;
-                    } else if(key == 'uptime') {
+                    } else if(~key.indexOf('uptime') && value > 0) {
                         value = formatUptimeDetailed(value);
-                    } else if(key == 'status') {
-                        form.val('status', {"server": value == 'start'});
+                    } else if(key == 'pushme_status') {
+                        form.val('status', {"pushme_status": value == 'start'});
                     }
                     $('.me-status-' + key).text(value);
                 });

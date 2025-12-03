@@ -9,9 +9,11 @@ class Server extends Admin
             process: process.pid,
             node: process.version,
             platform: process.platform,
-            status: this.ctx.pushme.status,
+            message_count: this.ctx.pushme.messageCount,
+            pushme_status: this.ctx.pushme.status,
             client_count: this.ctx.pushme.clientCount,
             connection_count: this.ctx.pushme.connectionCount,
+            pushme_uptime: this.ctx.pushme.uptime,
         });
     }
 
