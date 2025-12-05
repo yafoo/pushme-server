@@ -21,12 +21,9 @@ class Tls extends Context
 
     async create(opts = {}) {
         const attrs = [
-            { name: 'commonName', value: opts.domian || 'loacalhost' }, // 常用名（域名）
-            { name: 'countryName', value: opts.country || 'CN' },                // 国家代码（2字母）
-            // { name: 'stateOrProvinceName', value: opts.state || 'H' },     // 州/省
-            // { name: 'localityName', value: opts.city || 'L' },             // 城市
+            { name: 'commonName', value: '128.1.128.55' }, // 常用名（域名）
+            { name: 'countryName', value: opts.country || 'CN' },       // 国家代码（2字母）
             { name: 'organizationName', value: 'PushMe' }, // 组织名称
-            // { name: 'organizationalUnitName', value: 'PushMe' } // 部门
         ];
         // 扩展选项 - 包含 SAN (Subject Alternative Names)
         const extensions = [
@@ -34,19 +31,15 @@ class Tls extends Context
                 name: 'subjectAltName',
                 altNames: [
                     // DNS 名称
-                    { type: 2, value: 'mqtt-server.local' },
-                    { type: 2, value: 'localhost' },
-                    { type: 2, value: '*.mqtt-server.local' },
+                    // { type: 2, value: 'localhost' },
 
                     // IP 地址 (IPv4)
                     { type: 7, ip: '127.0.0.1' },
-                    { type: 7, ip: '192.168.1.100' },
-                    { type: 7, ip: '10.0.0.1' },
                     { type: 7, ip: '128.1.128.55' },
 
                     // IP 地址 (IPv6)
-                    { type: 7, ip: '::1' },
-                    { type: 7, ip: 'fe80::1' }
+                    // { type: 7, ip: '::1' },
+                    // { type: 7, ip: 'fe80::1' }
                 ]
             },
             // 添加密钥用法扩展
