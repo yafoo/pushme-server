@@ -41,7 +41,11 @@ class Server extends Admin
         const domains = this.$request.query('domains', '');
         const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
-            if(this.$config.setting.tls != '无证书') {
+            if(this.$config.setting.panel_tls != 'none') {
+                setTimeout(async () => {
+                    await this.ctx.pushme.appRestart();
+                }, 3000);
+            } else if(this.$config.setting.tls != 'none') {
                 await this.ctx.pushme.restart();
             }
             this.$success('证书生成成功！');
