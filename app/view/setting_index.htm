@@ -122,7 +122,7 @@
             <!-- TLS/SSL -->
             <div class="layui-tab-item">
                 <form class="layui-form layui-form-pane" action="" method="post">
-                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge layui-bg-green">./config/certs/</span>，私钥文件名为：<span class="layui-badge layui-bg-green">private.key</span>，证书文件名为：<span class="layui-badge layui-bg-green">cert.crt</span></blockquote>
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge-rim">./config/certs/</span>，私钥文件名为：<span class="layui-badge-rim">private.key</span>，证书文件名为：<span class="layui-badge-rim">cert.crt</span></blockquote>
                     <input type="hidden" name="form" value="tls" />
                     <div class="layui-form-item">
                         <label class="layui-form-label">服务证书</label>
@@ -293,14 +293,22 @@
         // 生成证书
         $('.me-btn-tls-create').click(function() {
             layer.confirm('此操作会覆盖已存在证书，生成后服务会自动重启。', {icon: 3, title:'确定生成吗？'}, function(index) {
-                $.post('{{url("server/tls_create")}}', function(res) {
-                    layer.close(index);
-                    if(res.state) {
-                        getCert();
-                        layer.msg(res.msg, {icon: 1});
-                    } else {
-                        layer.msg(res.msg, {icon: 2});
-                    }
+                layer.close(index);
+                layer.prompt({
+                    formType: 2,
+                    value: "{{domains}}",
+                    title: '请输入证书域名，多个以换行分开',
+                    // area: ['400px', '350px']
+                }, function(value, index, elem) {
+                    $.post('{{url("server/tls_create")}}', {domains: value}, function(res) {
+                        if(res.state) {
+                            layer.close(index);
+                            getCert();
+                            layer.msg(res.msg, {icon: 1});
+                        } else {
+                            layer.msg(res.msg, {icon: 2});
+                        }
+                    });
                 });
             });
         });

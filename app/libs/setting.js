@@ -27,9 +27,9 @@ class Setting extends Context
     push_keys: [${setting.push_key}],
     user: '${setting.user}',
     password: '${setting.password}',
-    tls: '${setting.tls}',
-    panel_tls: '${setting.panel_tls}',
-    status: '${setting.status}',
+    tls: '${setting.tls}', // none public self
+    panel_tls: '${setting.panel_tls}', // none tls
+    status: '${setting.status}', // start stop
 };`;
         const setting_file = path.join(this.$config.app.base_dir, './config/setting.js');
         await require('fs/promises').writeFile(setting_file, setting_str);

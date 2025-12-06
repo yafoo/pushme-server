@@ -20,41 +20,39 @@ class Tls extends Context
     }
 
     async create(opts = {}) {
+        const domains = opts.domains.split("\n").filter(item => item.trim() !== '');
         const attrs = [
-            { name: 'commonName', value: '128.1.128.55' }, // 常用名（域名）
+            { name: 'commonName', value: domains[0] }, // 常用名（域名）
             { name: 'countryName', value: opts.country || 'CN' },       // 国家代码（2字母）
             { name: 'organizationName', value: 'PushMe' }, // 组织名称
         ];
         // 扩展选项 - 包含 SAN (Subject Alternative Names)
+        const altNames = [];
+        const net = require('net');
+        domains.forEach(domain => {
+            if (net.isIP(domain)) {
+                altNames.push({
+                    type: 7, // IP
+                    ip: domain
+                });
+            } else {
+                altNames.push({
+                    type: 2, // DNS
+                    value: domain
+                });
+            }
+        });
         const extensions = [
             {
                 name: 'subjectAltName',
-                altNames: [
-                    // DNS 名称
-                    // { type: 2, value: 'localhost' },
-
-                    // IP 地址 (IPv4)
-                    { type: 7, ip: '127.0.0.1' },
-                    { type: 7, ip: '128.1.128.55' },
-
-                    // IP 地址 (IPv6)
-                    // { type: 7, ip: '::1' },
-                    // { type: 7, ip: 'fe80::1' }
-                ]
+                altNames
             },
-            // 添加密钥用法扩展
             {
                 name: 'keyUsage',
                 digitalSignature: true,
                 keyEncipherment: true,
                 serverAuth: true
             },
-            // 添加增强密钥用法
-            // {
-            //     name: 'extKeyUsage',
-            //     serverAuth: true,
-            //     clientAuth: true
-            // }
         ];
         const options = {
             algorithm: 'sha256',

@@ -38,8 +38,8 @@ class Server extends Admin
 
     async tlsCreate() {
         const days = 3650;
-        const domain = this.ctx.request.hostname;
-        const res = await this.$libs.tls.create({domain, days});
+        const domains = this.$request.query('domains', '');
+        const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
             if(this.$config.setting.tls != '无证书') {
                 await this.ctx.pushme.restart();

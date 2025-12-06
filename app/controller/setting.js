@@ -15,6 +15,12 @@ class Setting extends Admin
             this.$assign('push_key', this.$libs.setting.get_push_key());
             this.$assign('tls', this.$config.setting.tls || 'none');
             this.$assign('panel_tls', this.$config.setting.panel_tls || 'none');
+            const domains = [];
+            const domain = this.ctx.request.hostname.replace(/\[|\]/g, '');
+            domains.push(domain);
+            domain != '127.0.0.1' && domains.push('127.0.0.1');
+            domain != '::1' && domains.push('::1');
+            this.$assign('domains', domains.join("\\n"));
             return this.$fetch();
         }
 
