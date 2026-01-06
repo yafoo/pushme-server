@@ -43,12 +43,22 @@ class PushMe {
         // PushMe WebSocket
         this.httpServer = require('http').createServer((req, res) => {
             let status = 404;
+            let headers = {'Content-Type': 'text/plain'};
             let body = 'Not Found';
             if(~req.url.indexOf('/certs/cert.crt')) {
                 status = 200;
                 body = fs.existsSync(this._certPath) ? fs.readFileSync(this._certPath) : '请先在服务端生成自签名证书';
+            } else if(~req.url.indexOf('/certs/download')) {
+                status = 200;
+                body = fs.existsSync(this._certPath) ? fs.readFileSync(this._certPath) : '';
+                headers = {
+                    'Content-Type': 'application/x-x509-ca-cert',
+                    'Content-Disposition': 'attachment; filename="cert.crt"',
+                    'Content-Length': body.length,
+                    'Cache-Control': 'no-cache'
+                };
             }
-            res.writeHead(status, { 'Content-Type': 'text/plain' });
+            res.writeHead(status, headers);
             res.end(body);
             Logger.debug(req.url, body);
         });
