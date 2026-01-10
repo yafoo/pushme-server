@@ -10,11 +10,11 @@ class Setting extends Context
     async save(data = {}) {
         const setting = {
             push_key: this.get_push_key(),
-            user: this.$config.setting.user,
-            password: this.$config.setting.password,
-            tls: 'none',
-            panel_tls: 'none',
-            status: this.$config.setting.status || 'start',
+            user: this.$config.setting && this.$config.setting.user || '',
+            password: this.$config.setting && this.$config.setting.password || '',
+            tls: this.$config.setting && this.$config.setting.tls || 'none',
+            panel_tls: this.$config.setting && this.$config.setting.panel_tls || 'none',
+            status: this.$config.setting && this.$config.setting.status || 'start',
             ...data
         };
         const _parseKey = (push_key) => {
