@@ -75,6 +75,8 @@ class Login extends Base
             return this.$error('账号或密码不能为空！');
         }
         await this.$libs.setting.save({user: this._md5(user), password: this._md5(password)});
+        // 启动服务
+        await this.ctx.pushme.restart();
 
         // 模拟登录
         this.$cookie.set('user', user);
