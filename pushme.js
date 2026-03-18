@@ -15,7 +15,7 @@ class PushMe {
         if(this._setting.status === 'start') {
             this.start();
         } else {
-            Logger.system('PushMe server 未开启');
+            Logger.system('PushMe server is not started');
         }
     }
 
@@ -222,6 +222,8 @@ class PushMe {
             this.httpServer = null;
             this.aedes = null;
             this._connectionCount = 0;
+
+            Logger.system('PushMe server is stoped');
             return '关闭成功';
         } catch(err) {
             Logger.system('PushMe stop failed, error:', err);
