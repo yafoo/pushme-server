@@ -1,4 +1,5 @@
 const {Logger, utils} = require('jj.js');
+const {getSetting} = require('./utils.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -19,12 +20,7 @@ class PushMe {
     }
 
     _initSetting() {
-        const setting_path = path.join(__dirname, 'config', 'setting.js');
-        if(fs.existsSync(setting_path)) {
-            this._setting = require(setting_path);
-        } else {
-            this._setting = {};
-        }
+        this._setting = getSetting();
     }
 
     get tlsOptions() {
@@ -40,7 +36,7 @@ class PushMe {
         // PushMe aedes
         this.aedes = createAedes();
 
-        // PushMe WebSocket
+        // PushMe Certs Server
         this.httpServer = require('http').createServer((req, res) => {
             let status = 404;
             let headers = {'Content-Type': 'text/plain'};
@@ -62,6 +58,8 @@ class PushMe {
             res.end(body);
             Logger.debug(req.url, body);
         });
+
+        // PushMe WebSocket Server
         this.wsServer = require('websocket-stream').createServer({ server: this.httpServer }, this.aedes.handle);
 
         // PushMe Server

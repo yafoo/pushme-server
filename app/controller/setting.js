@@ -40,7 +40,7 @@ class Setting extends Admin
             if(panel_tls != this.$config.setting.panel_tls) {
                 ext_msg = '系统将自动重启';
                 setTimeout(async () => {
-                    await this.ctx.pushme.appRestart();
+                    await this.ctx.pushme.systemRestart();
                 }, 3000);
             } else if(tls != this.$config.setting.tls) {
                 ext_msg = '服务将自动重启';

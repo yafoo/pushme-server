@@ -1,85 +1,19 @@
 const {App, Logger} = require('jj.js');
 const PushMe = require('./pushme.js');
-const fs = require('fs');
-const path = require('path');
+const {getSetting, PushmeProxy} = require('./utils.js');
 
-// 获取消息发送数量
-const dataPath = path.join(__dirname, 'config', 'data.json');
-const getMessageCount = () => {
-    if (!fs.existsSync(dataPath)) {
-        return 0;
-    }
-    const data = require('./config/data.json');
-    return data.messageCount;
-}
-const saveMessageCount = () => {
-    fs.writeFileSync(dataPath, JSON.stringify({
-        messageCount: PushmeStatus.messageCount,
-    }, null, 2));
-}
 // 获取配置数据
-const setting = (() => {
-    const settingPath = path.join(__dirname, 'config', 'setting.js');
-    if (!fs.existsSync(settingPath)) {
-        return {};
-    }
-    return require(settingPath);
-})();
+const setting = getSetting();
 
 // PushMe server
 const server_port = 3100;
 const pushme = new PushMe(server_port);
-const PushmeStatus = {
-    _messageCount: getMessageCount(),
-    get messageCount() {
-        return PushmeStatus._messageCount;
-    },
-    publish: async(...args) => {
-        const res = await pushme.publish(...args);
-        res == 'success' && PushmeStatus._messageCount++;
-        return res;
-    },
-    start: () => {
-        pushme.start();
-    },
-    stop: async() => {
-        await pushme.stop();
-    },
-    restart: async() => {
-        await pushme.stop();
-        pushme.start();
-    },
-    get uptime() {
-        return pushme.uptime;
-    },
-    get status() {
-        return pushme.status;
-    },
-    get clientCount() {
-        return pushme.clientCount;
-    },
-    get connectionCount() {
-        return pushme.connectionCount;
-    },
-    get serverPort() {
-        return server_port;
-    },
-    get panelPort() {
-        return panel_port;
-    },
-    appRestart: async() => {
-        if (process.env.PM2) {
-            process.send({type: 'shutdown'});
-        } else {
-            process.exit(0);
-        }
-    }
-}
 
 // PushMe panel
 const panel_port = 3010;
+const pushmeProxy = PushmeProxy(pushme, server_port, panel_port);
 const app = new App(async(ctx, next) => {
-    ctx.pushme = PushmeStatus;
+    ctx.pushme = pushmeProxy;
     await next();
 });
 const listenErr = err => {
@@ -89,20 +23,20 @@ const listenErr = err => {
         Logger.error('PushMe panel+api start failed, error:', err);
     }
 }
-if(setting.panel_tls != 'tls') {
-    app.listen(panel_port, listenErr);
-} else {
+if(setting.panel_tls == 'tls') { // 共用服务证书
     require('https').createServer(pushme.tlsOptions, app.callback()).listen(panel_port, listenErr);
+} else {
+    app.listen(panel_port, listenErr);
 }
 
 // 保存数据
 process.on('SIGTERM', async () => {
-    Logger.system('Process SIGTERM')
-    saveMessageCount();
+    Logger.system('Process SIGTERM');
+    pushmeProxy.messageCountSave();
     process.exit(0);
 });
 process.on('SIGINT', async () => {
-    Logger.system('Process SIGINT')
-    saveMessageCount();
+    Logger.system('Process SIGINT');
+    pushmeProxy.messageCountSave();
     process.exit(0)
 });

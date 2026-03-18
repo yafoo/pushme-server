@@ -43,7 +43,7 @@ class Server extends Admin
         if(res.state) {
             if(this.$config.setting.panel_tls != 'none') {
                 setTimeout(async () => {
-                    await this.ctx.pushme.appRestart();
+                    await this.ctx.pushme.systemRestart();
                 }, 3000);
             } else if(this.$config.setting.tls != 'none') {
                 await this.ctx.pushme.restart();
@@ -65,7 +65,7 @@ class Server extends Admin
 
     async systemRestart() {
         setTimeout(async () => {
-            await this.ctx.pushme.appRestart();
+            await this.ctx.pushme.systemRestart();
         }, 3000);
         this.$success('操作成功！');
     }
