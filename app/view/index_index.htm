@@ -139,6 +139,7 @@
                     <input type="radio" name="type" value="text" title="text" checked>
                     <input type="radio" name="type" value="markdown" title="markdown">
                     <input type="radio" name="type" value="html" title="html">
+                    <input type="radio" name="type" value="url" title="url">
                 </div>
             </div>
             <div class="layui-form-item">
@@ -146,6 +147,7 @@
                 <div class="layui-input-block">
                     <input type="radio" name="type" value="data" title="data">
                     <input type="radio" name="type" value="markdata" title="markdata">
+                    <input type="radio" name="type" value="svg" title="svg">
                     <input type="radio" name="type" value="chart" title="chart">
                     <input type="radio" name="type" value="echarts" title="echarts">
                 </div>
@@ -156,8 +158,10 @@
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="text">hello world</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdown">markdown</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="html">html</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="url">url</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="data">data</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="markdata">markdata</button>
+                    <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="svg">svg</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="echarts">echarts</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="user" data-user="PushMe">分组</button>
                     <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" data-type="emoji" data-user="我的分组"  data-face="😄">分组+emoji</button>
@@ -285,8 +289,50 @@
                 text: 'PushMe，一个简单轻量的Android消息通知客户端！',
                 markdown: '## PushMe\n#### 一个简单轻量的Android消息通知客户端！\n官网：https://push.i-i.me/',
                 html: '<div style="border: 10px solid #46bc99; text-align: center; font-size: 30px;">HTML</div>',
+                url: 'https://push.i-i.me?from=type_url',
                 data: random(),
                 markdata: `||IP|UV|PV\n-|-|-|-\n今日|${random()}|${random()}|${random()}\n预计|${random()}|${random()}|${random()}\n昨日|${random()}|${random()}|${random()}`,
+                svg: `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="200" viewBox="0 0 400 200">
+    <defs>
+        <!-- 方格纹理图案 -->
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <rect width="20" height="20" fill="#f0f0f0"/>
+            <rect width="10" height="10" fill="#e0e0e0"/>
+        </pattern>
+        
+        <!-- 心形渐变 -->
+        <linearGradient id="heartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#FF6B9D;stop-opacity:1" />
+            <stop offset="50%" style="stop-color:#E91E63;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#C2185B;stop-opacity:1" />
+        </linearGradient>
+        
+        <!-- 阴影 -->
+        <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#00000040"/>
+        </filter>
+    </defs>
+    
+    <!-- 方格背景 -->
+    <rect width="400" height="200" fill="url(#grid)" />
+    
+    <!-- 心形主体 -->
+    <g filter="url(#shadow)">
+        <path 
+            d="M100,130 C100,130 65,108 65,86 C65,73 74,64 85,64 C92,64 96,69 100,76 C104,69 108,64 115,64 C126,64 135,73 135,86 C135,108 100,130 100,130Z" 
+            fill="url(#heartGradient)" 
+            stroke="#AD1457" 
+            stroke-width="1.5"
+        />
+    </g>
+    
+    <!-- 高光效果 -->
+    <path 
+        d="M85,78 C87,72 92,70 94,74 C96,78 91,82 85,78Z" 
+        fill="white" 
+        opacity="0.5"
+    />
+</svg>`,
                 chart: `${random()}`,
                 echarts: `{"series":[{"type":"pie","data":[{"value":${random()},"name":"A"},{"value":${random()},"name":"B"},{"value":${random()},"name":"C"}]}]}`,
             };
