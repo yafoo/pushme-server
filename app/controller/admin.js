@@ -8,7 +8,7 @@ class Admin extends Base {
         super._init();
 
         if(!this._isInstall()) {
-            this.$redirect('install');
+            this.$redirect('login/install');
             return false;
         }
 
