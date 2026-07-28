@@ -32,9 +32,9 @@ class PushMe {
         };
     }
 
-    _setupServers() {
+    async _setupServers() {
         // PushMe aedes
-        this.aedes = createAedes();
+        this.aedes = await createAedes();
 
         // PushMe Certs Server
         this.httpServer = require('http').createServer((req, res) => {
@@ -59,8 +59,13 @@ class PushMe {
             Logger.debug(req.url, body);
         });
 
-        // PushMe WebSocket Server
-        this.wsServer = require('websocket-stream').createServer({ server: this.httpServer }, this.aedes.handle);
+        // PushMe WebSocket Server (ws)
+        const WebSocket = require('ws');
+        this.wsServer = new WebSocket.WebSocketServer({ server: this.httpServer });
+        this.wsServer.on('connection', (websocket, req) => {
+            const stream = WebSocket.createWebSocketStream(websocket);
+            this.aedes.handle(stream, /** @type {any} */(req));
+        });
 
         // PushMe Server
         if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
@@ -157,9 +162,9 @@ class PushMe {
         return 'unknown';
     }
 
-    start() {
+    async start() {
         this._initSetting();
-        this._setupServers();
+        await this._setupServers();
         this.tcpServer.listen(this._port, err => {
             if(!err) {
                 this._ontime = Date.now();
@@ -189,18 +194,7 @@ class PushMe {
                 !this.tcpServer && resolve();
             });
 
-            await new Promise((resolve, reject) => {
-                this.wsServer && this.wsServer.close(err => {
-                    if(!err) {
-                        Logger.system('PushMe websocket server is stopped');
-                        resolve();
-                    } else {
-                        Logger.system('PushMe websocket server stop failed, error:', err);
-                        reject(err);
-                    }
-                });
-                !this.wsServer && resolve();
-            });
+            this.wsServer && this.wsServer.close();
 
             await new Promise((resolve, reject) => {
                 this.httpServer && this.httpServer.listening && this.httpServer.close(err => {
@@ -244,7 +238,7 @@ class PushMe {
     }
 
     get clientCount() {
-        return this.aedes ? Object.keys(this.aedes.clients).length : 0;
+        return this.aedes ? this.aedes.connectedClients : 0;
     }
 
     /**
@@ -259,11 +253,14 @@ class PushMe {
             msg = JSON.stringify(msg);
         }
         return new Promise((resolve, reject) => {
-            const packet = {
+            const packet = /** @type {any} */ ({
+                cmd: 'publish',
                 topic,
                 payload: Buffer.from(msg),
-                qos
-            };
+                qos,
+                dup: false,
+                retain: false
+            });
             this.aedes.publish(packet, error => {
                 const result = error ? error.message : 'success';
                 Logger.log('server', '[publish]', msg, result);
@@ -274,17 +271,18 @@ class PushMe {
 }
 
 /**
- * @typedef {typeof import('aedes').default.prototype} aedes
+ * @typedef {import('aedes').Aedes} aedes
  */
 /**
  * 重置参数
- * @returns {aedes}
+ * @returns {Promise<aedes>}
  */
-function createAedes() {
+async function createAedes() {
+    const { Aedes } = require('aedes');
     /**
      * @type {aedes}
      */
-    const aedes = require('aedes')();
+    const aedes = await Aedes.createBroker();
 
     aedes.preConnect = function(client, packet, callback) {
         Logger.debug('[preConnect]', packet.clientId);
