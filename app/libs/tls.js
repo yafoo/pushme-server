@@ -54,9 +54,14 @@ class Tls extends Context
                 serverAuth: true
             },
         ];
+        const days = opts.days || 365 * 10;
+        const notBeforeDate = new Date();
+        const notAfterDate = new Date();
+        notAfterDate.setDate(notAfterDate.getDate() + days);
         const options = {
             algorithm: 'sha256',
-            days: opts.days || 365 * 10,
+            notBeforeDate,
+            notAfterDate,
             keySize: opts.size || 2048,
             extensions: extensions,  // 扩展
         };
@@ -77,15 +82,7 @@ class Tls extends Context
     }
 
     async _generate(attrs = [], options = {}) {
-        return new Promise((resolve, reject) => {
-            require('selfsigned').generate(attrs, options, function(err, pems) {
-                if(err) {
-                    reject(err);
-                } else {
-                    resolve(pems);
-                }
-            });
-        });
+        return require('selfsigned').generate(attrs, options);
     }
 
     async getCertContent() {

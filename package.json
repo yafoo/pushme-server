@@ -26,10 +26,10 @@
   "dependencies": {
     "aedes": "^1.1.1",
     "jj.js": "^0.19.0",
-    "selfsigned": "^4.0.0",
+    "selfsigned": "^5.5.0",
     "ws": "^8.18.0"
   },
   "engines": {
-    "node": ">=18"
+    "node": ">= 20.19.0"
   }
 }
