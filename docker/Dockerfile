@@ -1,4 +1,4 @@
-FROM node:18.20.4-alpine3.20
+FROM node:20.19.0-alpine3.20
 ENV NODE_ENV=production
 ENV TZ=Asia/Shanghai
 

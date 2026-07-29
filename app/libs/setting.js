@@ -1,4 +1,4 @@
-const {Context} = require('jj.js');
+const {Context, loader} = require('jj.js');
 const path = require('path');
 
 class Setting extends Context
@@ -34,6 +34,7 @@ class Setting extends Context
         const setting_file = path.join(this.$config.app.base_dir, './config/setting.js');
         await require('fs/promises').writeFile(setting_file, setting_str);
         require.cache[setting_file] && delete(require.cache[setting_file]);
+        loader.clearPathCache();
     }
 }
 

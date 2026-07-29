@@ -15,7 +15,7 @@ PushMe Server 是一个基于 Node.js 开发的自建消息推送服务器,为 [
 
 ## 📦 系统要求
 
-- **Node.js**: >= 18.0
+- **Node.js**: >= 20.19.0
 - **端口占用**: 
   - `3010` - Web 管理及 API 接口
   - `3100` - MQTT/WebSocket 消息服务
