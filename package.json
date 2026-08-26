@@ -3,6 +3,22 @@
   "version": "2.1.0",
   "description": "PushMe消息通知服务器",
   "main": "server.js",
+  "files": [
+    "app",
+    "config",
+    "public",
+    "bin",
+    "jsconfig.json",
+    "LICENSE",
+    "package.json",
+    "pushme.js",
+    "README.md",
+    "server.js",
+    "utils.js",
+    "!config/certs",
+    "!config/data.json",
+    "!config/setting.js"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

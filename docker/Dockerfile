@@ -10,7 +10,7 @@ VOLUME /config
 
 WORKDIR /pushme-server
 COPY package.json package-lock.json ./
-RUN npm i --production
+RUN npm ci --omit=dev
 COPY . .
 COPY config config.demo
 
