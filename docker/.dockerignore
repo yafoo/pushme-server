@@ -1,0 +1,10 @@
+/.vscode
+/.git
+/.github
+/.gitignore
+/bin
+/node_modules
+/config/setting.js
+/docker/.dockerignore
+/docker/Dockerfile
+/types.js

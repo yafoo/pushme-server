@@ -1,7 +1,0 @@
-/.vscode
-/.git
-/.gitignore
-/node_modules
-/config/setting.js
-/package-lock.json
-/types.js

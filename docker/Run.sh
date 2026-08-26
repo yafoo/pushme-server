@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 echo "配置文件"
 [ ! -f config/app.js ] && cp config.demo/app.js config/app.js
 [ ! -f config/log.js ] && cp config.demo/log.js config/log.js
