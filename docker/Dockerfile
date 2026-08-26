@@ -1,11 +1,16 @@
-FROM node:20.19.0-alpine3.20
+# syntax=docker/dockerfile:1
+
+FROM node:20.19.6-alpine3.22
 ENV NODE_ENV=production
 ENV TZ=Asia/Shanghai
 
-EXPOSE 3010 3100
+EXPOSE 3010
+EXPOSE 3100
 VOLUME /config
 
 WORKDIR /pushme-server
+COPY package.json package-lock.json ./
+RUN npm i --production
 COPY . .
 COPY config config.demo
 
