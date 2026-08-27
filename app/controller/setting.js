@@ -1,20 +1,35 @@
 const Admin = require('./admin.js');
 
+/**
+ * 系统设置控制器
+ * @description 管理push_key、TLS配置、用户账号
+ * @extends Admin
+ */
 class Setting extends Admin
 {
+    /**
+     * 初始化，设置当前导航
+     * @returns {Promise<import('jj.js/types').EXIT|undefined>}
+     */
     async _init() {
         const res = await super._init();
-        if(res === false) {
-            return false;
+        if(res === '__EXIT__') {
+            return '__EXIT__';
         }
         this.$assign('cur_nav', 'setting');
     }
 
+    /**
+     * 设置页面/保存设置
+     * @description GET显示设置页面，POST根据form字段处理不同设置项
+     * @returns {Promise<import('jj.js/types').EXIT|void>}
+     */
     async index() {
         if(this.$request.isGet()) {
             this.$assign('push_key', this.$libs.setting.get_push_key());
             this.$assign('tls', this.$config.setting.tls || 'none');
             this.$assign('panel_tls', this.$config.setting.panel_tls || 'none');
+            /** @type {string[]} 证书域名列表 */
             const domains = [];
             const domain = this.ctx.request.hostname.replace(/\[|\]/g, '');
             domains.push(domain);
@@ -24,6 +39,7 @@ class Setting extends Admin
             return this.$fetch();
         }
 
+        /** @type {string} 表单类型标识 */
         const form = this.$request.query('form', '');
         let ext_msg = '';
         if(form == 'push_key') {

@@ -1,8 +1,25 @@
 const {Context} = require('jj.js');
 
+/**
+ * @typedef {Object} ThirdData
+ * @property {string} title - 消息标题
+ * @property {string} content - 消息内容
+ * @property {string} type - 消息类型（text/markdown/空字符串）
+ */
+
+/**
+ * 第三方平台消息解析类
+ * @description 支持飞书、企业微信、钉钉群机器人的消息格式转换
+ * @extends Context
+ */
 class Third extends Context
 {
+    /**
+     * 智能获取第三方平台消息数据（自动识别平台类型）
+     * @returns {ThirdData} 解析后的消息数据
+     */
     data() {
+        /** @type {ThirdData} */
         const third_data = {
             title: '',
             content: '',
@@ -20,8 +37,14 @@ class Third extends Context
         }
     }
 
-    // 飞书机器人 请求{msg_type: 'text', content: {text}} 响应{StatusCode: 0, msg}
-    feishu(msg_type, third_data={}) {
+    /**
+     * 解析飞书机器人消息
+     * @description 飞书机器人请求格式: {msg_type: 'text', content: {text}}
+     * @param {string} msg_type - 消息类型：text|post|share_chat|image|interactive
+     * @param {ThirdData} third_data - 消息数据对象
+     * @returns {ThirdData} 解析后的消息数据
+     */
+    feishu(msg_type, third_data) {
         const content = this.$request.query('content');
 
         // 文本
@@ -95,8 +118,14 @@ class Third extends Context
         return third_data;
     }
 
-    // 企业微信/钉钉群机器人 请求{msgtype: 'text', content: {text}} 响应{errcode: 0, errmsg}
-    weiding(msgtype, third_data={}) {
+    /**
+     * 解析企业微信/钉钉群机器人消息
+     * @description 企业微信/钉钉请求格式: {msgtype: 'text', content: {text}}
+     * @param {string} msgtype - 消息类型：text|markdown|image|news|file|template_card|link|actionCard|feedCard
+     * @param {ThirdData} third_data - 消息数据对象
+     * @returns {ThirdData} 解析后的消息数据
+     */
+    weiding(msgtype, third_data) {
         third_data.type = 'markdown';
         const params = this.$request.post(msgtype, {});
 

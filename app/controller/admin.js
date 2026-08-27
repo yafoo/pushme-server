@@ -1,20 +1,24 @@
 const Base = require('./base.js');
 
+/**
+ * 管理控制器基类
+ * @description 提供安装检测和登录验证的权限拦截
+ * @extends Base
+ */
 class Admin extends Base {
     /**
-     * @returns {Promise<boolean>}
+     * 权限验证初始化
+     * @returns {Promise<undefined|'__EXIT__'>} 返回__EXIT__表示终止后续执行
      */
     async _init() {
         super._init();
 
         if(!this._isInstall()) {
-            this.$redirect('login/install');
-            return false;
+            return this.$redirect('login/install');
         }
 
         if(!this._isLogin()) {
-            this.$redirect('login/index');
-            return false;
+            return this.$redirect('login/index');
         }
     }
 }

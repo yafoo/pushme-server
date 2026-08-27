@@ -1,7 +1,16 @@
 const Admin = require('./admin.js');
 
+/**
+ * 服务管理控制器
+ * @description 管理服务启停、证书生成、系统重启
+ * @extends Admin
+ */
 class Server extends Admin
 {
+    /**
+     * 获取服务运行状态
+     * @returns {Promise<void>}
+     */
     async status() {
         this.$success({
             memory: process.memoryUsage().heapUsed,
@@ -19,25 +28,43 @@ class Server extends Admin
         });
     }
 
+    /**
+     * 启动PushMe服务
+     * @returns {Promise<void>}
+     */
     async start() {
         await this.$libs.setting.save({status: 'start'});
         this.ctx.pushme.start();
         this.$success('服务已启动！');
     }
 
+    /**
+     * 停止PushMe服务
+     * @returns {Promise<void>}
+     */
     async stop() {
         await this.$libs.setting.save({status: 'stop'});
         await this.ctx.pushme.stop();
         this.$success('服务已关闭！');
     }
 
+    /**
+     * 重启PushMe服务
+     * @returns {Promise<void>}
+     */
     async restart() {
         await this.ctx.pushme.restart();
         this.$success('服务已重启！');
     }
 
+    /**
+     * 生成TLS自签名证书
+     * @returns {Promise<void>}
+     */
     async tlsCreate() {
+        /** @type {number} 证书有效天数（10年） */
         const days = 3650;
+        /** @type {string} 域名列表（换行分隔） */
         const domains = this.$request.query('domains', '');
         const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
@@ -54,6 +81,10 @@ class Server extends Admin
         }
     }
 
+    /**
+     * 获取证书内容
+     * @returns {Promise<void>}
+     */
     async getCert() {
         const content = await this.$libs.tls.getCertContent();
         if(content) {
@@ -63,6 +94,10 @@ class Server extends Admin
         }
     }
 
+    /**
+     * 系统级重启（进程级）
+     * @returns {Promise<void>}
+     */
     async systemRestart() {
         setTimeout(async () => {
             await this.ctx.pushme.systemRestart();

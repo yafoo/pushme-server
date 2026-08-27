@@ -1,15 +1,34 @@
 const Base = require('./base.js');
+
+/**
+ * 获取当前Unix时间戳（秒）
+ * @returns {number}
+ */
 const time = () => Date.now() / 1000;
+
+/** @type {number} 下次可重试时间戳 */
 let retry_time = 0;
+/** @type {number} 剩余重试次数 */
 let retry_times = 5;
 
+/**
+ * 登录控制器
+ * @description 处理登录、登出、系统安装
+ * @extends Base
+ */
 class Login extends Base 
 {
+    /** 初始化，设置当前导航 */
     async _init() {
         super._init();
         this.$assign('cur_nav', 'login');
     }
 
+    /**
+     * 登录页面/登录提交
+     * @description GET显示登录页面，POST处理登录请求，含错误重试限制
+     * @returns {Promise<import('jj.js/types').EXIT|void>}
+     */
     async index() {
         if(!this._isInstall()) { 
             return this.$redirect('install');
@@ -53,11 +72,20 @@ class Login extends Base
         this.$success('登录成功！', 'setting/index');
     }
 
+    /**
+     * 退出登录
+     * @returns {Promise<void>}
+     */
     async logout() {
         this.$cookie.delete('user');
         this.$success('退出成功！', 'index');
     }
 
+    /**
+     * 系统安装
+     * @description GET显示安装页面，POST处理安装请求（创建管理员账号）
+     * @returns {Promise<import('jj.js/types').EXIT|void>}
+     */
     async install() {
         if(this._isInstall()) {
             return this.$success('您已安装！', 'setting/index');

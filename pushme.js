@@ -3,14 +3,48 @@ const {getSetting} = require('./utils.js');
 const fs = require('fs');
 const path = require('path');
 
+/**
+ * @typedef {import('aedes').Aedes} Aedes
+ * @typedef {import('aedes').Client} AedesClient
+ * @typedef {import('http').Server} HttpServer
+ * @typedef {import('net').Server} TcpServer
+ * @typedef {import('net').Socket} TcpSocket
+ * @typedef {import('tls').Server} TlsServer
+ * @typedef {import('ws').WebSocketServer} WsServer
+ */
+
+/**
+ * PushMe消息推送服务
+ * @description 支持MQTT/WebSocket/TCP多协议，集成Aedes MQTT Broker
+ */
 class PushMe {
+    /**
+     * @param {number} [port=3100] - 服务监听端口
+     */
     constructor(port = 3100) {
+        /** @type {number} 服务启动时间戳 */
         this._ontime = 0;
+        /** @type {number} 当前连接数 */
         this._connectionCount = 0;
+        /** @type {number} 服务端口 */
         this._port = port;
+        /** @type {string} 证书目录 */
         this._certsDir = path.join(__dirname, 'config', 'certs');
+        /** @type {string} 私钥文件路径 */
         this._keyPath = path.join(this._certsDir, 'private.key');
+        /** @type {string} 证书文件路径 */
         this._certPath = path.join(this._certsDir, 'cert.crt');
+        /** @type {import('./utils.js').SettingConfig} 系统设置 */
+        this._setting = {};
+        /** @type {Aedes|null} MQTT Broker实例 */
+        this.aedes = null;
+        /** @type {HttpServer|null} HTTP服务器（用于证书下载和WebSocket） */
+        this.httpServer = null;
+        /** @type {WsServer|null} WebSocket服务器 */
+        this.wsServer = null;
+        /** @type {TcpServer|TlsServer|null} TCP/TLS服务器 */
+        this.tcpServer = null;
+
         this._initSetting();
         if(this._setting.status === 'start') {
             this.start();
@@ -19,10 +53,15 @@ class PushMe {
         }
     }
 
+    /** 初始化系统设置 */
     _initSetting() {
         this._setting = getSetting();
     }
 
+    /**
+     * TLS配置选项
+     * @type {import('node:tls').TlsOptions}
+     */
     get tlsOptions() {
         return {
             key: fs.readFileSync(this._keyPath),
@@ -32,6 +71,7 @@ class PushMe {
         };
     }
 
+    /** 初始化所有服务器（Aedes、HTTP、WebSocket、TCP） */
     async _setupServers() {
         // PushMe aedes
         this.aedes = await createAedes();
@@ -69,12 +109,16 @@ class PushMe {
 
         // PushMe Server
         if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
-            this.tcpServer = require('tls').createServer(this.tlsOptions, this._handleConnection.bind(this));
+            this.tcpServer = require('node:tls').createServer(this.tlsOptions, this._handleConnection.bind(this));
         } else {
             this.tcpServer = require('net').createServer(this._handleConnection.bind(this));
         }
     }
 
+    /**
+     * 处理新TCP连接，自动检测协议并分发
+     * @param {TcpSocket} socket - TCP连接套接字
+     */
     _handleConnection(socket) {
         this._connectionCount++;
         Logger.debug('New connection. Total:', this._connectionCount);
@@ -83,6 +127,7 @@ class PushMe {
         let isProtocolDetected = false;
         let initialBuffer = Buffer.alloc(0);
 
+        /** @param {Buffer} chunk */
         const onData = chunk => {
             if (isProtocolDetected) return;
 
@@ -120,6 +165,7 @@ class PushMe {
             }
         };
 
+        /** @param {Error} err */
         const onError = err => {
             Logger.log('server', 'Socket error:', err.message);
             socket.destroy();
@@ -134,6 +180,11 @@ class PushMe {
         });
     }
 
+    /**
+     * 检测连接协议类型
+     * @param {Buffer} buffer - 初始数据缓冲
+     * @returns {'mqtt'|'websocket'|'http'|'unknown'|'need_more_data'} 检测到的协议
+     */
     _detectProtocol(buffer) {
         if (buffer.length < 8) {
             return 'need_more_data'; // 数据不足，等待更多
@@ -162,6 +213,7 @@ class PushMe {
         return 'unknown';
     }
 
+    /** 启动服务 */
     async start() {
         this._initSetting();
         await this._setupServers();
@@ -175,6 +227,10 @@ class PushMe {
         });
     }
 
+    /**
+     * 停止服务
+     * @returns {Promise<string>} 操作结果
+     */
     async stop() {
         if(!this.tcpServer) {
             return '服务未启动';
@@ -225,25 +281,44 @@ class PushMe {
         }
     }
 
+    /**
+     * 服务运行时长
+     * @type {number} 运行秒数
+     */
     get uptime() {
         return this.status == 'start' ? (Date.now() - this._ontime) / 1000 : 0;
     }
 
+    /**
+     * 服务状态
+     * @type {'start'|'stop'}
+     */
     get status() {
         return this.tcpServer ? 'start' : 'stop';
     }
 
+    /**
+     * 当前连接数
+     * @type {number}
+     */
     get connectionCount() {
         return this._connectionCount;
     }
 
+    /**
+     * 已连接的MQTT客户端数
+     * @type {number}
+     */
     get clientCount() {
         return this.aedes ? this.aedes.connectedClients : 0;
     }
 
     /**
-     * publish message
-     * @returns {Promise}
+     * 发布消息到MQTT Broker
+     * @param {string} topic - 消息主题
+     * @param {string|Object} msg - 消息内容，对象会自动序列化
+     * @param {number} [qos=1] - QoS级别（0|1|2）
+     * @returns {Promise<string>} 发布结果
      */
     async publish(topic, msg, qos = 1) {
         if(typeof msg == 'object') {
@@ -271,19 +346,22 @@ class PushMe {
 }
 
 /**
- * @typedef {import('aedes').Aedes} aedes
- */
-/**
- * 重置参数
- * @returns {Promise<aedes>}
+ * 创建并配置Aedes MQTT Broker
+ * @returns {Promise<Aedes>} 配置好的Aedes实例
  */
 async function createAedes() {
     const { Aedes } = require('aedes');
-    /**
-     * @type {aedes}
-     */
+    /** @type {Aedes} */
     const aedes = await Aedes.createBroker();
 
+    /**
+     * 连接前拦截，调整keepalive值
+     * @param {AedesClient} client
+     * @param {Object} packet - 连接报文
+     * @param {string} packet.clientId - 客户端ID
+     * @param {number} packet.keepalive - 心跳间隔
+     * @param {Function} callback
+     */
     aedes.preConnect = function(client, packet, callback) {
         Logger.debug('[preConnect]', packet.clientId);
         if(packet.keepalive == 300 || packet.keepalive == 600) {
@@ -291,6 +369,14 @@ async function createAedes() {
         }
         callback(null, true);
     }
+
+    /**
+     * 订阅授权，只允许已配置的push_key主题
+     * @param {AedesClient} client
+     * @param {Object} sub - 订阅对象
+     * @param {string} sub.topic - 订阅主题
+     * @param {Function} callback
+     */
     aedes.authorizeSubscribe = function(client, sub, callback) {
         Logger.debug('[authorizeSubscribe]', client.id);
         let setting = {};
@@ -313,15 +399,21 @@ async function createAedes() {
     aedes.on('clientDisconnect', function(client) {
         Logger.log('server', '[clientDisconnect]', client.id);
     });
+    /**
+     * @param {AedesClient} client
+     * @param {Error} err
+     */
     aedes.on('clientError', function (client, err) {
         Logger.log('server', '[clientError]', client.id, err.message);
     });
 
     return aedes;
 }
+
 /**
- * 重置参数
- * @param {aedes} aedes
+ * 关闭Aedes MQTT Broker
+ * @param {Aedes} aedes - Aedes实例
+ * @returns {Promise<void>}
  */
 function closeAedes(aedes) {
     return new Promise((resolve, reject) => {
