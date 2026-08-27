@@ -79,24 +79,27 @@ class PushMe {
         // PushMe Certs Server
         this.httpServer = require('http').createServer((req, res) => {
             let status = 404;
+            /** @type {Record<string, string>} */
             let headers = {'Content-Type': 'text/plain'};
+            /** @type {string|Buffer} */
             let body = 'Not Found';
-            if(~req.url.indexOf('/certs/cert.crt')) {
+            const url = req.url || '';
+            if(~url.indexOf('/certs/cert.crt')) {
                 status = 200;
                 body = fs.existsSync(this._certPath) ? fs.readFileSync(this._certPath) : '请先在服务端生成自签名证书';
-            } else if(~req.url.indexOf('/certs/download')) {
+            } else if(~url.indexOf('/certs/download')) {
                 status = 200;
                 body = fs.existsSync(this._certPath) ? fs.readFileSync(this._certPath) : '';
                 headers = {
                     'Content-Type': 'application/x-x509-ca-cert',
                     'Content-Disposition': 'attachment; filename="cert.crt"',
-                    'Content-Length': body.length,
+                    'Content-Length': String(body.length),
                     'Cache-Control': 'no-cache'
                 };
             }
             res.writeHead(status, headers);
             res.end(body);
-            Logger.debug(req.url, body);
+            Logger.debug(url, body);
         });
 
         // PushMe WebSocket Server (ws)
@@ -104,12 +107,12 @@ class PushMe {
         this.wsServer = new WebSocket.WebSocketServer({ server: this.httpServer });
         this.wsServer.on('connection', (websocket, req) => {
             const stream = WebSocket.createWebSocketStream(websocket);
-            this.aedes.handle(stream, /** @type {any} */(req));
+            this.aedes && this.aedes.handle(stream, /** @type {any} */(req));
         });
 
         // PushMe Server
         if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
-            this.tcpServer = require('node:tls').createServer(this.tlsOptions, this._handleConnection.bind(this));
+            this.tcpServer = /** @type {TcpServer|TlsServer} */ (require('node:tls').createServer(this.tlsOptions, /** @type {any} */ (this._handleConnection.bind(this))));
         } else {
             this.tcpServer = require('net').createServer(this._handleConnection.bind(this));
         }
@@ -131,7 +134,7 @@ class PushMe {
         const onData = chunk => {
             if (isProtocolDetected) return;
 
-            initialBuffer = Buffer.concat([initialBuffer, chunk]);
+            initialBuffer = Buffer.concat(/** @type {any} */ ([initialBuffer, chunk]));
             if(initialBuffer.length < 8) return;
 
             isProtocolDetected = true
@@ -145,13 +148,13 @@ class PushMe {
             socket.unshift(initialBuffer)
             if (protocol == 'mqtt') {
                 Logger.debug('TCP connection detected');
-                this.aedes.handle(socket);
+                this.aedes && this.aedes.handle(socket);
             } else if(protocol == 'websocket') {
                 Logger.debug('WebSocket connection detected');
-                this.httpServer.emit('connection', socket);
+                this.httpServer && this.httpServer.emit('connection', socket);
             } else if(protocol == 'http') {
                 Logger.debug('HTTP connection detected');
-                this.httpServer.emit('connection', socket);
+                this.httpServer && this.httpServer.emit('connection', socket);
             } else {
                 Logger.debug(`${protocol} connection detected`);
                 socket.destroy();
@@ -167,7 +170,7 @@ class PushMe {
 
         /** @param {Error} err */
         const onError = err => {
-            Logger.log('server', 'Socket error:', err.message);
+            Logger.system('Socket error:', err.message);
             socket.destroy();
         };
 
@@ -217,7 +220,7 @@ class PushMe {
     async start() {
         this._initSetting();
         await this._setupServers();
-        this.tcpServer.listen(this._port, err => {
+        this.tcpServer && this.tcpServer.listen(this._port, /** @param {Error} [err] */ (err) => {
             if(!err) {
                 this._ontime = Date.now();
                 Logger.system('PushMe server is started and listening on port', this._port);
@@ -241,13 +244,13 @@ class PushMe {
                 this.tcpServer && this.tcpServer.close(err => {
                     if(!err) {
                         Logger.system('PushMe tcp server is stopped');
-                        resolve();
+                        resolve(undefined);
                     } else {
                         Logger.system('PushMe tcp server stop failed, error:', err);
                         reject(err);
                     }
                 });
-                !this.tcpServer && resolve();
+                !this.tcpServer && resolve(undefined);
             });
 
             this.wsServer && this.wsServer.close();
@@ -256,13 +259,13 @@ class PushMe {
                 this.httpServer && this.httpServer.listening && this.httpServer.close(err => {
                     if(!err) {
                         Logger.system('PushMe http server is stopped');
-                        resolve();
+                        resolve(undefined);
                     } else {
                         Logger.system('PushMe http server stop failed, error:', err);
                         reject(err);
                     }
                 });
-                (!this.httpServer || !this.httpServer.listening) && resolve();
+                (!this.httpServer || !this.httpServer.listening) && resolve(undefined);
             });
 
             this.aedes && await closeAedes(this.aedes);
@@ -275,7 +278,7 @@ class PushMe {
 
             Logger.system('PushMe server is stoped');
             return '关闭成功';
-        } catch(err) {
+        } catch(/** @type {any} */ err) {
             Logger.system('PushMe stop failed, error:', err);
             return err.message;
         }
@@ -321,24 +324,30 @@ class PushMe {
      * @returns {Promise<string>} 发布结果
      */
     async publish(topic, msg, qos = 1) {
+        /** @type {string} */
+        let payload;
         if(typeof msg == 'object') {
-            if(!msg.date) {
-                msg.date = utils.date.format('YYYY-mm-dd HH:ii:ss');
+            /** @type {Record<string, any>} */
+            const obj = msg;
+            if(!obj.date) {
+                obj.date = utils.date.format('YYYY-mm-dd HH:ii:ss');
             }
-            msg = JSON.stringify(msg);
+            payload = JSON.stringify(obj);
+        } else {
+            payload = msg;
         }
         return new Promise((resolve, reject) => {
             const packet = /** @type {any} */ ({
                 cmd: 'publish',
                 topic,
-                payload: Buffer.from(msg),
+                payload: Buffer.from(payload),
                 qos,
                 dup: false,
                 retain: false
             });
-            this.aedes.publish(packet, error => {
+            this.aedes && this.aedes.publish(packet, error => {
                 const result = error ? error.message : 'success';
-                Logger.log('server', '[publish]', msg, result);
+                Logger.system('[publish]', msg, result);
                 resolve(result);
             });
         });
@@ -357,9 +366,7 @@ async function createAedes() {
     /**
      * 连接前拦截，调整keepalive值
      * @param {AedesClient} client
-     * @param {Object} packet - 连接报文
-     * @param {string} packet.clientId - 客户端ID
-     * @param {number} packet.keepalive - 心跳间隔
+     * @param {any} packet - 连接报文
      * @param {Function} callback
      */
     aedes.preConnect = function(client, packet, callback) {
@@ -379,9 +386,10 @@ async function createAedes() {
      */
     aedes.authorizeSubscribe = function(client, sub, callback) {
         Logger.debug('[authorizeSubscribe]', client.id);
+        /** @type {import('./utils.js').SettingConfig} */
         let setting = {};
         try {
-            setting = require('./config/setting.js');
+            setting = /** @type {import('./utils.js').SettingConfig} */ (require('./config/setting.js'));
         } catch(e) {}
         if(!sub.topic || !setting.push_keys || !setting.push_keys.includes(sub.topic)) {
             Logger.debug('[errorTopic]', sub.topic);
@@ -391,20 +399,20 @@ async function createAedes() {
     }
 
     aedes.on('client', function(client) {
-        Logger.log('server', '[client]', client.id)
+        Logger.system('[client]', client.id)
     })
     aedes.on('clientReady', function(client) {
-        Logger.log('server', '[clientReady]', client.id);
+        Logger.system('[clientReady]', client.id);
     });
     aedes.on('clientDisconnect', function(client) {
-        Logger.log('server', '[clientDisconnect]', client.id);
+        Logger.system('[clientDisconnect]', client.id);
     });
     /**
      * @param {AedesClient} client
      * @param {Error} err
      */
     aedes.on('clientError', function (client, err) {
-        Logger.log('server', '[clientError]', client.id, err.message);
+        Logger.system('[clientError]', client.id, err.message);
     });
 
     return aedes;
@@ -417,7 +425,7 @@ async function createAedes() {
  */
 function closeAedes(aedes) {
     return new Promise((resolve, reject) => {
-        aedes.close((err) => {
+        aedes.close(/** @param {Error} [err] */ (err) => {
             if (err) {
                 Logger.system('PushMe aedes server stop failed, error:', err);
                 reject(err)
