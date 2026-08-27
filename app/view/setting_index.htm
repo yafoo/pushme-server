@@ -52,7 +52,7 @@
 {{/block}}
 
 {{block 'main'}}
-    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">管理中心</h2></h2>
+    <h2 style="line-height: 30px; color: #333; padding-top: 30px;">管理中心</h2>
     <div class="layui-tab layui-tab-card" lay-filter="setting" style="margin-bottom: 0;">
         <ul class="layui-tab-title">
             <li class="layui-this">系统信息</li>
@@ -85,7 +85,7 @@
                         <div class="layui-form-item">
                             <label class="layui-form-label">系统重启</label>
                             <div class="layui-input-block">
-                                <div class="layui-btn layui-btn-sm me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                                <div class="layui-btn layui-btn-sm layui-btn-normal me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
                             </div>
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                             <label class="layui-form-label">服务状态</label>
                             <div class="layui-input-block">
                                 <input type="checkbox" name="pushme_status" lay-filter="server" lay-skin="switch" lay-text="开启|关闭">
-                                <div class="layui-btn layui-btn-sm me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                                <div class="layui-btn layui-btn-sm layui-btn-normal me-btn-server-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
                             </div>
                         </div>
                     </div>
@@ -294,16 +294,12 @@
                     formType: 2,
                     value: "{{domains}}",
                     title: '请输入证书域名，多个以换行分开',
-                    // area: ['400px', '350px']
                 }, function(value, index, elem) {
                     $.post('{{url("server/tls_create")}}', {domains: value}, function(res) {
                         if(res.state) {
                             layer.close(index);
                             getCert();
                             layer.msg(res.msg, {icon: 1});
-                            // setTimeout(function() {
-                            //     location.reload();
-                            // }, 3000);
                         } else {
                             layer.msg(res.msg, {icon: 2});
                         }
@@ -322,7 +318,7 @@
         }
 
         // 系统状态
-        element = layui.element;
+        var element = layui.element;
         let timer_status = null;
         const get_status = function() {
             $.post('{{url("server/status")}}', function(res) {

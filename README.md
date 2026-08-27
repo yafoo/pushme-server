@@ -109,7 +109,7 @@ pushme-server/
 │   │   ├── admin.js      # 后台管理
 │   │   ├── login.js      # 用户认证
 │   │   ├── server.js     # 消息服务
-│   │   └── setting.js    # 系统设置
+│   │   └── data.json     # 系统设置（合并了配置和数据）
 │   ├── libs/             # 业务逻辑库
 │   └── view/             # 视图模板
 ├── config/               # 配置文件

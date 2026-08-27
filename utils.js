@@ -1,15 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
-/**
- * @typedef {Object} SettingConfig
- * @property {string[]} [push_keys] - 推送key列表
- * @property {string} [user] - 用户名（md5加密后）
- * @property {string} [password] - 密码（md5加密后）
- * @property {'none'|'public'|'self'} [tls] - TLS模式：none-无, public-公共证书, self-自签名
- * @property {'none'|'tls'} [panel_tls] - 面板TLS模式：none-无, tls-启用
- * @property {'start'|'stop'} [status] - 服务状态
- */
+const {getConfig} = require('./lib/config.js');
 
 /**
  * @typedef {Object} PushmeProxyInstance
@@ -27,45 +16,6 @@ const path = require('path');
  * @property {number} panelPort - 面板端口
  * @property {function} systemRestart - 系统重启
  */
-
-// 系统设置
-const settingPath = path.join(__dirname, 'config', 'setting.js');
-
-/**
- * 获取系统设置
- * @returns {SettingConfig} 系统配置对象
- */
-const getSetting = () => {
-    if (!fs.existsSync(settingPath)) {
-        return {};
-    }
-    return require(settingPath);
-}
-
-// 消息数量
-const dataPath = path.join(__dirname, 'config', 'data.json');
-
-/**
- * 获取消息计数
- * @returns {number} 消息数量
- */
-const getMessageCount = () => {
-    if (!fs.existsSync(dataPath)) {
-        return 0;
-    }
-    const data = require(dataPath);
-    return data.messageCount;
-}
-
-/**
- * 保存消息计数
- * @param {number} count - 消息数量
- */
-const saveMessageCount = (count) => {
-    fs.writeFileSync(dataPath, JSON.stringify({
-        messageCount: count,
-    }, null, 2));
-}
 
 /**
  * 系统重启（可能重启失败）
@@ -88,7 +38,8 @@ const systemRestart = async() => {
  * @returns {PushmeProxyInstance} PushMe代理对象
  */
 function PushmeProxy(pushme, server_port, panel_port) {
-    let message_count = getMessageCount();
+    const config = getConfig();
+    let message_count = config.messageCount;
     return {
         /** 启动服务 */
         start: () => {
@@ -121,7 +72,7 @@ function PushmeProxy(pushme, server_port, panel_port) {
         },
         /** 保存消息计数到文件 */
         messageCountSave: () => {
-            saveMessageCount(message_count);
+            config.messageCount = message_count;
         },
         /** 运行时长（秒） */
         get uptime() {
@@ -153,9 +104,6 @@ function PushmeProxy(pushme, server_port, panel_port) {
 }
 
 module.exports = {
-    getSetting,
-    getMessageCount,
-    saveMessageCount,
     systemRestart,
     PushmeProxy,
 }

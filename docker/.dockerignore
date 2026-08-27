@@ -4,7 +4,7 @@
 /.gitignore
 /bin
 /node_modules
-/config/setting.js
+/config/data.json
 /docker/.dockerignore
 /docker/Dockerfile
 /types.js

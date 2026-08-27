@@ -16,8 +16,7 @@
     "server.js",
     "utils.js",
     "!config/certs",
-    "!config/data.json",
-    "!config/setting.js"
+    "!config/data.json"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

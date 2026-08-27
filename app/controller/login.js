@@ -1,4 +1,5 @@
 const Base = require('./base.js');
+const {getConfig} = require('../../lib/config.js');
 
 /**
  * 获取当前Unix时间戳（秒）
@@ -53,11 +54,12 @@ class Login extends Base
             return this.$error(`请${delay_str}后再试！`);
         }
 
+        const config = getConfig();
         let user = this.$request.query('user');
         let password = this.$request.query('password');
         user = this._md5(user);
         password = this._md5(password);
-        if(user != this.$config.setting.user || password != this.$config.setting.password) {
+        if(user != config.user || password != config.password) {
             retry_times--;
             if(retry_times > 0) {
                 return this.$error(`账号或密码错误！${retry_times <= 3 ? '还剩' + retry_times + '机会' : ''}`);

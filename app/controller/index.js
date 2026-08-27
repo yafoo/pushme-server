@@ -1,4 +1,5 @@
 const Base = require('./base.js');
+const {getConfig} = require('../../lib/config.js');
 
 /**
  * 首页控制器
@@ -120,7 +121,8 @@ class Index extends Base
             return '';
         }
 
-        if(!this.$config.setting.push_keys.includes(push_key)) {
+        const config = getConfig();
+        if(!config.pushKeys.includes(push_key)) {
             this.$logger.error(`非法push_key ${push_key}`);
             return '非法push_key!';
         }

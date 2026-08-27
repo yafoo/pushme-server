@@ -5,10 +5,10 @@
 
 const {App, Logger} = require('jj.js');
 const PushMe = require('./pushme.js');
-const {getSetting, PushmeProxy} = require('./utils.js');
+const {PushmeProxy} = require('./utils.js');
+const {getConfig} = require('./lib/config.js');
 
-/** @type {import('./utils.js').SettingConfig} 系统配置 */
-const setting = getSetting();
+const config = getConfig();
 
 /** @type {number} PushMe服务端口（MQTT/WebSocket/TCP） */
 const server_port = 3100;
@@ -42,7 +42,7 @@ const listenErr = err => {
 }
 
 // 根据配置选择HTTP或HTTPS启动面板
-if(setting.panel_tls == 'tls') { // 共用服务证书
+if(config.panelTls == 'tls') { // 共用服务证书
     require('https').createServer(pushme.tlsOptions, app.callback()).listen(panel_port, listenErr);
 } else {
     app.listen(panel_port, listenErr);

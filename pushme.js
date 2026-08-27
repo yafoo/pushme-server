@@ -1,5 +1,5 @@
 const {Logger, utils} = require('jj.js');
-const {getSetting} = require('./utils.js');
+const {getConfig} = require('./lib/config.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -34,8 +34,8 @@ class PushMe {
         this._keyPath = path.join(this._certsDir, 'private.key');
         /** @type {string} 证书文件路径 */
         this._certPath = path.join(this._certsDir, 'cert.crt');
-        /** @type {import('./utils.js').SettingConfig} 系统设置 */
-        this._setting = {};
+        /** @type {import('./lib/config.js').ConfigManager} 配置管理器 */
+        this._config = getConfig();
         /** @type {Aedes|null} MQTT Broker实例 */
         this.aedes = null;
         /** @type {HttpServer|null} HTTP服务器（用于证书下载和WebSocket） */
@@ -45,17 +45,11 @@ class PushMe {
         /** @type {TcpServer|TlsServer|null} TCP/TLS服务器 */
         this.tcpServer = null;
 
-        this._initSetting();
-        if(this._setting.status === 'start') {
+        if(this._config.status === 'start') {
             this.start();
         } else {
             Logger.system('PushMe server is not started');
         }
-    }
-
-    /** 初始化系统设置 */
-    _initSetting() {
-        this._setting = getSetting();
     }
 
     /**
@@ -111,7 +105,7 @@ class PushMe {
         });
 
         // PushMe Server
-        if(this._setting.tls && this._setting.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
+        if(this._config.tls && this._config.tls != 'none' && fs.existsSync(this._keyPath) && fs.existsSync(this._certPath)) {
             this.tcpServer = /** @type {TcpServer|TlsServer} */ (require('node:tls').createServer(this.tlsOptions, /** @type {any} */ (this._handleConnection.bind(this))));
         } else {
             this.tcpServer = require('net').createServer(this._handleConnection.bind(this));
@@ -218,7 +212,6 @@ class PushMe {
 
     /** 启动服务 */
     async start() {
-        this._initSetting();
         await this._setupServers();
         this.tcpServer && this.tcpServer.listen(this._port, /** @param {Error} [err] */ (err) => {
             if(!err) {
@@ -240,6 +233,12 @@ class PushMe {
         }
 
         try {
+            // 保存消息计数
+            const {getConfig} = require('./lib/config.js');
+            const config = getConfig();
+            // 注意：这里不能直接访问 pushmeProxy，需要通过事件或回调
+            // 暂时保留原有逻辑，消息计数由外部保存
+
             await new Promise((resolve, reject) => {
                 this.tcpServer && this.tcpServer.close(err => {
                     if(!err) {
@@ -276,12 +275,26 @@ class PushMe {
             this.aedes = null;
             this._connectionCount = 0;
 
-            Logger.system('PushMe server is stoped');
+            Logger.system('PushMe server is stopped');
             return '关闭成功';
         } catch(/** @type {any} */ err) {
             Logger.system('PushMe stop failed, error:', err);
             return err.message;
         }
+    }
+
+    /**
+     * 优雅重启服务（不中断进程）
+     * @returns {Promise<string>} 操作结果
+     */
+    async restart() {
+        Logger.system('PushMe server restarting...');
+        const stopResult = await this.stop();
+        if(stopResult !== '关闭成功' && stopResult !== '服务未启动') {
+            return '重启失败: ' + stopResult;
+        }
+        await this.start();
+        return '重启成功';
     }
 
     /**
@@ -386,13 +399,8 @@ async function createAedes() {
      */
     aedes.authorizeSubscribe = function(client, sub, callback) {
         Logger.debug('[authorizeSubscribe]', client.id);
-        /** @type {import('./utils.js').SettingConfig} */
-        let setting = {};
-        try {
-            setting = /** @type {import('./utils.js').SettingConfig} */ (require('./config/setting.js'));
-        } catch(e) {}
-        if(!sub.topic || !setting.push_keys || !setting.push_keys.includes(sub.topic)) {
-            Logger.debug('[errorTopic]', sub.topic);
+        const config = getConfig();
+        if(!sub.topic || !config.pushKeys.includes(sub.topic)) {
             return callback(new Error('errorTopic: ' + sub.topic));
         }
         callback(null, sub);

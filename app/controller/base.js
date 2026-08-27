@@ -1,4 +1,5 @@
 const {Controller, utils} = require('jj.js');
+const {getConfig} = require('../../lib/config.js');
 const md5 = utils.md5;
 
 /**
@@ -22,7 +23,8 @@ class Base extends Controller
      * @returns {boolean} 是否已安装
      */
     _isInstall() {
-        return this.$config.setting ? true : false;
+        const config = getConfig();
+        return !!(config.user && config.password);
     }
 
     /**
@@ -30,7 +32,8 @@ class Base extends Controller
      * @returns {boolean} 是否已登录
      */
     _isLogin() {
-        return this._isInstall() && this._md5(this.$cookie.get('user')) == this.$config.setting.user;
+        const config = getConfig();
+        return this._isInstall() && this._md5(this.$cookie.get('user')) == config.user;
     }
 
     /**

@@ -1,4 +1,5 @@
 const Admin = require('./admin.js');
+const {getConfig} = require('../../lib/config.js');
 
 /**
  * 服务管理控制器
@@ -53,8 +54,12 @@ class Server extends Admin
      * @returns {Promise<void>}
      */
     async restart() {
-        await this.ctx.pushme.restart();
-        this.$success('服务已重启！');
+        const result = await this.ctx.pushme.restart();
+        if(result === '重启成功') {
+            this.$success('服务已重启！');
+        } else {
+            this.$error(result);
+        }
     }
 
     /**
@@ -62,17 +67,18 @@ class Server extends Admin
      * @returns {Promise<void>}
      */
     async tlsCreate() {
+        const config = getConfig();
         /** @type {number} 证书有效天数（10年） */
         const days = 3650;
         /** @type {string} 域名列表（换行分隔） */
         const domains = this.$request.query('domains', '');
         const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
-            if(this.$config.setting.panel_tls != 'none') {
+            if(config.panelTls != 'none') {
                 setTimeout(async () => {
                     await this.ctx.pushme.systemRestart();
                 }, 3000);
-            } else if(this.$config.setting.tls != 'none') {
+            } else if(config.tls != 'none') {
                 await this.ctx.pushme.restart();
             }
             this.$success('证书生成成功！');

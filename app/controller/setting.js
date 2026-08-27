@@ -1,4 +1,5 @@
 const Admin = require('./admin.js');
+const {getConfig} = require('../../lib/config.js');
 
 /**
  * 系统设置控制器
@@ -25,10 +26,11 @@ class Setting extends Admin
      * @returns {Promise<import('jj.js/types').EXIT|void>}
      */
     async index() {
+        const config = getConfig();
         if(this.$request.isGet()) {
             this.$assign('push_key', this.$libs.setting.get_push_key());
-            this.$assign('tls', this.$config.setting.tls || 'none');
-            this.$assign('panel_tls', this.$config.setting.panel_tls || 'none');
+            this.$assign('tls', config.tls);
+            this.$assign('panel_tls', config.panelTls);
             /** @type {string[]} 证书域名列表 */
             const domains = [];
             const domain = this.ctx.request.hostname.replace(/\[|\]/g, '');
@@ -42,6 +44,8 @@ class Setting extends Admin
         /** @type {string} 表单类型标识 */
         const form = this.$request.query('form', '');
         let ext_msg = '';
+        const oldTls = config.tls;
+        const oldPanelTls = config.panelTls;
         if(form == 'push_key') {
             const push_key = this.$request.query('push_key', '');
             await this.$libs.setting.save({push_key});
@@ -53,12 +57,12 @@ class Setting extends Admin
                 return this.$error(tls == 'public' ? '证书不存在' : '请先生成自签名证书');
             }
             await this.$libs.setting.save({tls, panel_tls});
-            if(panel_tls != this.$config.setting.panel_tls) {
+            if(panel_tls != oldPanelTls) {
                 ext_msg = '系统将自动重启';
                 setTimeout(async () => {
                     await this.ctx.pushme.systemRestart();
                 }, 3000);
-            } else if(tls != this.$config.setting.tls) {
+            } else if(tls != oldTls) {
                 ext_msg = '服务将自动重启';
                 await this.ctx.pushme.restart();
             }
