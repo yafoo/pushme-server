@@ -11,18 +11,14 @@ const {getConfig} = require('./lib/config.js');
 
 const config = getConfig();
 
-// 从配置中获取端口
-const server_port = config.serverPort;
-const panel_port = config.panelPort;
-
 // 创建 PushMe 服务实例
-const pushme = new PushMe(server_port);
+const pushme = new PushMe();
 
 // 创建 PushMe 代理对象
-const pushmeProxy = PushmeProxy(pushme, server_port, panel_port);
+const pushmeProxy = PushmeProxy(pushme);
 
 // 创建并启动面板服务
-const panel = new PushmePanel(pushme, pushmeProxy, panel_port);
+const panel = new PushmePanel(pushme, pushmeProxy);
 panel.start();
 
 // 进程退出时保存消息计数
