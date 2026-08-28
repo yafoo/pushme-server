@@ -64,8 +64,8 @@ class Setting extends Admin
             if(panel_tls != oldPanelTls) {
                 ext_msg = '系统将自动重启';
                 setTimeout(() => {
-                    this.ctx.app.emit('systemRestart');
-                }, 3000);
+                    this.ctx.app.emit('PANEL_RESTART');
+                }, 500);
             } else if(tls != oldTls) {
                 ext_msg = '服务将自动重启';
                 await this.ctx.pushme.restart();
@@ -80,8 +80,8 @@ class Setting extends Admin
             if(server_port != oldServerPort || panel_port != oldPanelPort) {
                 ext_msg = '系统将自动重启以应用新端口';
                 setTimeout(() => {
-                    this.ctx.app.emit('systemRestart');
-                }, 3000);
+                    this.ctx.app.emit('PANEL_RESTART');
+                }, 500);
             }
         } else if(form == 'user') {
             const user = this.$request.query('user');

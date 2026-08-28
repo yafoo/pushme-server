@@ -83,9 +83,9 @@
                             <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
                         </div>
                         <div class="layui-form-item">
-                            <label class="layui-form-label">系统重启</label>
+                            <label class="layui-form-label">面板重启</label>
                             <div class="layui-input-block">
-                                <div class="layui-btn layui-btn-sm layui-btn-normal me-btn-system-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
+                                <div class="layui-btn layui-btn-sm layui-btn-normal me-btn-panel-restart" style="margin-top: 4px; margin-left: 10px; padding: 0 10px;">点击重启</div>
                             </div>
                         </div>
                     </div>
@@ -162,7 +162,7 @@
                         <label class="layui-form-label">面板证书</label>
                         <div class="layui-input-block">
                             <input type="radio" name="panel_tls" value="none" title="无证书" lay-filter="panel_tls" {{panel_tls == 'none' ? 'checked' : ''}}>
-                            <input type="radio" name="panel_tls" value="tls" title="共用服务证书（浏览器需导入证书才能访问）" lay-filter="panel_tls" {{panel_tls == 'tls' ? 'checked' : ''}}>
+                            <input type="radio" name="panel_tls" value="tls" title="共用服务证书（自签名证书需浏览器导入证书才能访问）" lay-filter="panel_tls" {{panel_tls == 'tls' ? 'checked' : ''}}>
                         </div>
                     </div>
 
@@ -280,10 +280,10 @@
                 });
             });
         });
-        // 系统重启
-        $('.me-btn-system-restart').click(function() {
-            layer.confirm('确定重启系统吗？', {icon: 3, title:'提示'}, function(index) {
-                $.post('{{url("server/system_restart")}}', function(res) {
+        // 面板重启
+        $('.me-btn-panel-restart').click(function() {
+            layer.confirm('确定重启面板吗？', {icon: 3, title:'提示'}, function(index) {
+                $.post('{{url("server/panel_restart")}}', function(res) {
                     layer.close(index);
                     if(res.state) {
                         layer.msg(res.msg, {icon: 1});

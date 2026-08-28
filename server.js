@@ -15,17 +15,21 @@ const pushmeServer = new PushMeServer();
 const pushmeProxy = PushmeProxy(pushmeServer);
 
 // 创建并启动面板服务
-const panel = new PushmePanel(pushmeServer, pushmeProxy);
-panel.start();
+const pushmePanel = new PushmePanel(pushmeServer, pushmeProxy);
+pushmePanel.start();
 
 // 进程退出时保存消息计数
-process.on('SIGTERM', async () => {
-    Logger.system('Process SIGTERM');
-    panel.saveMessageCount();
+/**
+ * @param {string} type 
+ */
+async function saveCount(type) {
+    Logger.system(`Process ${type}, saving message count...`);
+    pushmeProxy.messageCountSave();
     process.exit(0);
+}
+process.on('SIGTERM', async () => {
+    await saveCount('SIGTERM');
 });
 process.on('SIGINT', async () => {
-    Logger.system('Process SIGINT');
-    panel.saveMessageCount();
-    process.exit(0);
+    await saveCount('SIGINT');
 });

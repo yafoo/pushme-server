@@ -3,7 +3,7 @@ const {getConfig} = require('../../lib/config.js');
 
 /**
  * 服务管理控制器
- * @description 管理服务启停、证书生成、系统重启
+ * @description 管理服务启停、证书生成、面板重启
  * @extends Admin
  */
 class Server extends Admin
@@ -76,8 +76,8 @@ class Server extends Admin
         if(res.state) {
             if(config.panelTls != 'none') {
                 setTimeout(() => {
-                    this.ctx.app.emit('systemRestart');
-                }, 3000);
+                    this.ctx.app.emit('PANEL_RESTART');
+                }, 500);
             } else if(config.tls != 'none') {
                 await this.ctx.pushme.restart();
             }
@@ -104,10 +104,10 @@ class Server extends Admin
      * 系统级重启（进程级）
      * @returns {Promise<void>}
      */
-    async systemRestart() {
+    async panelRestart() {
         setTimeout(() => {
-            this.ctx.app.emit('systemRestart');
-        }, 3000);
+            this.ctx.app.emit('PANEL_RESTART');
+        }, 500);
         this.$success('操作成功！');
     }
 }
