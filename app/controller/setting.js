@@ -31,6 +31,8 @@ class Setting extends Admin
             this.$assign('push_key', this.$libs.setting.get_push_key());
             this.$assign('tls', config.tls);
             this.$assign('panel_tls', config.panelTls);
+            this.$assign('server_port', config.serverPort);
+            this.$assign('panel_port', config.panelPort);
             /** @type {string[]} 证书域名列表 */
             const domains = [];
             const domain = this.ctx.request.hostname.replace(/\[|\]/g, '');
@@ -46,6 +48,8 @@ class Setting extends Admin
         let ext_msg = '';
         const oldTls = config.tls;
         const oldPanelTls = config.panelTls;
+        const oldServerPort = config.serverPort;
+        const oldPanelPort = config.panelPort;
         if(form == 'push_key') {
             const push_key = this.$request.query('push_key', '');
             await this.$libs.setting.save({push_key});
@@ -59,12 +63,25 @@ class Setting extends Admin
             await this.$libs.setting.save({tls, panel_tls});
             if(panel_tls != oldPanelTls) {
                 ext_msg = '系统将自动重启';
-                setTimeout(async () => {
-                    await this.ctx.pushme.systemRestart();
+                setTimeout(() => {
+                    this.ctx.app.emit('systemRestart');
                 }, 3000);
             } else if(tls != oldTls) {
                 ext_msg = '服务将自动重启';
                 await this.ctx.pushme.restart();
+            }
+        } else if(form == 'port') {
+            const server_port = parseInt(this.$request.query('server_port', '3100'));
+            const panel_port = parseInt(this.$request.query('panel_port', '3010'));
+            if(isNaN(server_port) || isNaN(panel_port) || server_port < 1 || panel_port < 1 || server_port > 65535 || panel_port > 65535) {
+                return this.$error('端口号必须为1-65535之间的数字！');
+            }
+            await this.$libs.setting.save({server_port, panel_port});
+            if(server_port != oldServerPort || panel_port != oldPanelPort) {
+                ext_msg = '系统将自动重启以应用新端口';
+                setTimeout(() => {
+                    this.ctx.app.emit('systemRestart');
+                }, 3000);
             }
         } else if(form == 'user') {
             const user = this.$request.query('user');

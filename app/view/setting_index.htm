@@ -117,6 +117,25 @@
                         </div>
                     </div>
                 </form>
+                
+                <!-- 端口配置 -->
+                <form class="layui-form layui-form-pane" action="" method="post" style="margin-top: 20px; border-top: 1px solid #e6e6e6; padding-top: 15px;">
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">端口配置（修改后系统将自动重启）</blockquote>
+                    <input type="hidden" name="form" value="port" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">服务端口</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="server_port" value="{{server_port}}" placeholder="MQTT/WebSocket/TCP服务端口" autocomplete="off" class="layui-input" lay-verify="number" min="1" max="65535">
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">面板端口</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="panel_port" value="{{panel_port}}" placeholder="Web管理面板端口" autocomplete="off" class="layui-input" lay-verify="number" min="1" max="65535">
+                        </div>
+                    </div>
+                    {{include './form_submit.htm'}}
+                </form>
             </div>
 
             <!-- TLS/SSL -->

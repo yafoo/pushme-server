@@ -75,8 +75,8 @@ class Server extends Admin
         const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
             if(config.panelTls != 'none') {
-                setTimeout(async () => {
-                    await this.ctx.pushme.systemRestart();
+                setTimeout(() => {
+                    this.ctx.app.emit('systemRestart');
                 }, 3000);
             } else if(config.tls != 'none') {
                 await this.ctx.pushme.restart();
@@ -105,8 +105,8 @@ class Server extends Admin
      * @returns {Promise<void>}
      */
     async systemRestart() {
-        setTimeout(async () => {
-            await this.ctx.pushme.systemRestart();
+        setTimeout(() => {
+            this.ctx.app.emit('systemRestart');
         }, 3000);
         this.$success('操作成功！');
     }

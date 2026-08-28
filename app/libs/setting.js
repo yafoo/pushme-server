@@ -18,28 +18,24 @@ class Setting extends Context
 
     /**
      * 保存系统设置
-     * @param {Object} [data={}] - 要更新的设置项
-     * @param {string} [data.push_key] - 推送key（逗号分隔）
-     * @param {string} [data.user] - 用户名
-     * @param {string} [data.password] - 密码
-     * @param {string} [data.tls] - TLS模式
-     * @param {string} [data.panel_tls] - 面板TLS模式
-     * @param {string} [data.status] - 服务状态
+     * @param {Object} data - 要更新的设置项
      * @returns {Promise<void>}
      */
-    async save(data = {}) {
+    async save(data) {
         const config = getConfig();
-        /** @type {Record<string, any>} */
-        const updates = {};
-
-        // 处理push_key：逗号分隔字符串 → 数组
-        if(data.push_key !== undefined) {
-            updates.push_keys = data.push_key.replace(/ /g, '').split(',').filter(k => k);
-        }
-        // 直接映射的字段
-        for(const key of ['user', 'password', 'tls', 'panel_tls', 'status']) {
-            if(data[key] !== undefined) {
-                updates[key] = data[key];
+        const updates = /** @type {Record<string, any>} */ ({});
+        
+        // Convert data to entries to avoid TypeScript indexing issues
+        const dataObj = /** @type {any} */ (data || {});
+        const entries = Object.entries(dataObj);
+        
+        for(const [key, value] of entries) {
+            if(key === 'push_key' && typeof value === 'string') {
+                // 处理push_key：逗号分隔字符串 → 数组
+                updates.push_keys = value.replace(/ /g, '').split(',').filter(k => k);
+            } else if(['user', 'password', 'tls', 'panel_tls', 'status', 'server_port', 'panel_port'].includes(key)) {
+                // 直接映射的字段
+                updates[key] = value;
             }
         }
 
