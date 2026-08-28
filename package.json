@@ -6,15 +6,14 @@
   "files": [
     "app",
     "config",
+    "lib",
     "public",
     "bin",
     "jsconfig.json",
     "LICENSE",
     "package.json",
-    "pushme.js",
     "README.md",
     "server.js",
-    "utils.js",
     "!config/certs",
     "!config/data.json"
   ],

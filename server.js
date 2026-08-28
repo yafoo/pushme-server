@@ -4,20 +4,20 @@
  */
 
 const {App, Logger} = require('jj.js');
-const PushMe = require('./pushme.js');
-const {PushmeProxy} = require('./utils.js');
+const PushMe = require('./lib/pushme.js');
+const {PushmeProxy} = require('./lib/utils.js');
 const {getConfig} = require('./lib/config.js');
 
 const config = getConfig();
 
 /** @type {number} PushMe服务端口（MQTT/WebSocket/TCP） */
 const server_port = 3100;
-/** @type {import('./pushme.js')} PushMe服务实例 */
+/** @type {import('./lib/pushme.js')} PushMe服务实例 */
 const pushme = new PushMe(server_port);
 
 /** @type {number} Web管理面板端口 */
 const panel_port = 3010;
-/** @type {import('./utils.js').PushmeProxyInstance} PushMe代理对象 */
+/** @type {import('./lib/utils.js').PushmeProxyInstance} PushMe代理对象 */
 const pushmeProxy = PushmeProxy(pushme, server_port, panel_port);
 
 /**
