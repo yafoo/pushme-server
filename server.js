@@ -4,21 +4,18 @@
  */
 
 const {Logger} = require('jj.js');
-const PushMe = require('./lib/pushme_server.js');
+const PushMeServer = require('./lib/pushme_server.js');
 const PushmeProxy = require('./lib/pushme_proxy.js');
 const PushmePanel = require('./lib/pushme_panel.js');
-const {getConfig} = require('./lib/config.js');
-
-const config = getConfig();
 
 // 创建 PushMe 服务实例
-const pushme = new PushMe();
+const pushmeServer = new PushMeServer();
 
 // 创建 PushMe 代理对象
-const pushmeProxy = PushmeProxy(pushme);
+const pushmeProxy = PushmeProxy(pushmeServer);
 
 // 创建并启动面板服务
-const panel = new PushmePanel(pushme, pushmeProxy);
+const panel = new PushmePanel(pushmeServer, pushmeProxy);
 panel.start();
 
 // 进程退出时保存消息计数
