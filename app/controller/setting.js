@@ -33,6 +33,8 @@ class Setting extends Admin
             this.$assign('panel_tls', config.panelTls);
             this.$assign('server_port', config.serverPort);
             this.$assign('panel_port', config.panelPort);
+            // 获取日志级别配置，传给前端动态生成筛选项
+            this.$assign('log_levels', this.$config.log.log_level);
             /** @type {string[]} 证书域名列表 */
             const domains = [];
             const domain = this.ctx.request.hostname.replace(/\[|\]/g, '');

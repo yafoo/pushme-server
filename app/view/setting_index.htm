@@ -48,6 +48,43 @@
         left: 10px;
         top: 6px;
     }
+    .me-log-container {
+        height: 500px;
+        overflow-y: auto;
+        background: #1e1e1e;
+        color: #d4d4d4;
+        font-family: "SF Mono", "Cascadia Code", "JetBrains Mono", "Fira Code", Consolas, monospace;
+        font-size: 12px;
+        padding: 10px;
+        border-radius: 4px;
+        line-height: 1.6;
+    }
+    .me-log-line {
+        white-space: pre-wrap;
+        word-break: break-all;
+        padding: 2px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .me-log-line .log-time { color: #858585; }
+    .me-log-line .log-level { font-weight: bold; margin: 0 6px; }
+    .me-log-line.log-error .log-level { color: #f48771; }
+    .me-log-line.log-warning .log-level { color: #e5c07b; }
+    .me-log-line.log-system .log-level { color: #61afef; }
+    .me-log-line.log-info .log-level { color: #98c379; }
+    .me-log-toolbar {
+        margin-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+    }
+    .me-log-level-select {
+        height: 30px;
+        padding: 0 10px;
+        border: 1px solid #e6e6e6;
+        border-radius: 2px;
+        background: #fff;
+    }
+    .me-log-count { margin-left: auto; }
 </style>
 {{/block}}
 
@@ -59,6 +96,7 @@
             <li>TLS/SSL</li>
             <li>PushKey</li>
             <li>账户密码</li>
+            <li>系统日志</li>
         </ul>
         <div class="layui-tab-content">
             <!-- 系统信息 -->
@@ -193,6 +231,25 @@
                     {{include './form_password2.htm'}}
                     {{include './form_submit.htm'}}
                 </form>
+            </div>
+
+            <!-- 系统日志 -->
+            <div class="layui-tab-item">
+                <blockquote class="layui-elem-quote layui-font-red me-quote" style="margin-bottom: 10px;">
+                    <i class="layui-icon layui-icon-about"></i> 日志仅保存于内存中，系统重启后将清空
+                </blockquote>
+                <div class="me-log-toolbar">
+                    <button class="layui-btn layui-btn-sm layui-btn-normal" id="log-toggle">暂停</button>
+                    <button class="layui-btn layui-btn-sm layui-btn-danger" id="log-clear">清空</button>
+                    <select class="me-log-level-select" id="log-level-filter">
+                        <option value="">全部级别</option>
+                        {{each log_levels as lv}}
+                        <option value="{{lv}}">{{lv}}</option>
+                        {{/each}}
+                    </select>
+                    <span class="me-log-count layui-font-gray">共 0 条</span>
+                </div>
+                <div id="log-container" class="me-log-container"></div>
             </div>
         </div>
     </div>
@@ -369,10 +426,107 @@
             timer_status = null;
         }
 
+        // 系统日志 SSE
+        var logEventSource = null;
+        var logPaused = false;
+        var logLevelFilter = '';
+        var logCount = 0;
+        var MAX_LOG_DOM = 500;
+
+        function formatLogTime(ts) {
+            var d = new Date(ts);
+            var pad = function(n) { return n < 10 ? '0' + n : n; };
+            return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+
+        function appendLog(line) {
+            if (logLevelFilter && line.level !== logLevelFilter) return;
+            var container = $('#log-container');
+            var div = $('<div class="me-log-line log-' + line.level + '">' +
+                '<span class="log-time">[' + formatLogTime(line.time) + ']</span>' +
+                '<span class="log-level">[' + line.level + ']</span>' +
+                '<span class="log-msg"></span></div>');
+            div.find('.log-msg').text(line.msg);
+            container.append(div);
+            logCount++;
+            // 限制 DOM 数量
+            var lines = container.children();
+            if (lines.length > MAX_LOG_DOM) {
+                lines.slice(0, lines.length - MAX_LOG_DOM).remove();
+            }
+            // 自动滚动到底部
+            container.scrollTop(container[0].scrollHeight);
+            $('.me-log-count').text('共 ' + logCount + ' 条');
+        }
+
+        function connectLog() {
+            if (logEventSource) return;
+            // 清空已有日志，避免重复显示（服务端会先发送最近100条历史）
+            $('#log-container').empty();
+            logCount = 0;
+            $('.me-log-count').text('共 0 条');
+            logEventSource = new EventSource('{{url("log/stream")}}');
+            logEventSource.onmessage = function(e) {
+                if (logPaused) return;
+                try { appendLog(JSON.parse(e.data)); } catch(ex) {}
+            };
+            logEventSource.onerror = function() {
+                logEventSource.close();
+                logEventSource = null;
+                setTimeout(function() {
+                    // 仅在日志 tab 激活时重连
+                    if ($('.layui-tab-title .layui-this').index() === 4) {
+                        connectLog();
+                    }
+                }, 3000);
+            };
+        }
+
+        function disconnectLog() {
+            if (logEventSource) {
+                logEventSource.close();
+                logEventSource = null;
+            }
+        }
+
+        // 暂停/恢复
+        $('#log-toggle').on('click', function() {
+            logPaused = !logPaused;
+            $(this).text(logPaused ? '恢复' : '暂停')
+                .toggleClass('layui-btn-normal', !logPaused)
+                .toggleClass('layui-btn-warm', logPaused);
+        });
+
+        // 清空
+        $('#log-clear').on('click', function() {
+            $('#log-container').empty();
+            logCount = 0;
+            $('.me-log-count').text('共 0 条');
+        });
+
+        // 级别筛选
+        $('#log-level-filter').on('change', function() {
+            logLevelFilter = $(this).val();
+            // 重新筛选：清空后从缓冲区重新加载
+            $('#log-container').empty();
+            logCount = 0;
+            $.get('{{url("log/history")}}?count=500', function(res) {
+                if (res.state && res.data) {
+                    res.data.forEach(appendLog);
+                }
+            });
+        });
+
         start_timer();
         layui.element.on('tab(setting)', function(data) {
             data.index == 0 ? start_timer() : stop_timer();
             data.index == 1 && !getCert.is_init && getCert();
+            // 日志 tab（索引4）
+            if (data.index == 4) {
+                connectLog();
+            } else {
+                disconnectLog();
+            }
         });
     });
 
