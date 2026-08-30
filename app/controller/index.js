@@ -14,6 +14,17 @@ class Index extends Base
      * @returns {Promise<import('jj.js/types').EXIT|void>}
      */
     async index() {
+        // 跨域支持
+        this.ctx.set('Access-Control-Allow-Origin', '*');
+        this.ctx.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+        this.ctx.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept, Origin');
+        this.ctx.set('Access-Control-Max-Age', '86400'); // 预检请求缓存24小时
+
+        // OPTIONS 预检请求直接返回
+        if(this.$request.method() === 'OPTIONS') {
+            return this.$show('');
+        }
+
         let push_key = this.$request.query('push_key');
         let title = this.$request.query('title');
         let content = this.$request.query('content');
