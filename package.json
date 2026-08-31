@@ -3,6 +3,9 @@
   "version": "2.1.0",
   "description": "PushMe消息通知服务器",
   "main": "server.js",
+  "bin": {
+    "pushme-server": "./bin/pushme.js"
+  },
   "files": [
     "app",
     "config",
