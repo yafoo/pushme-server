@@ -16,6 +16,8 @@ const pushmeProxy = PushmeProxy(pushmeServer);
 
 // 创建并启动面板服务
 const pushmePanel = new PushmePanel(pushmeServer, pushmeProxy);
+// 将面板引用设置到代理对象，用于获取面板运行时间
+pushmeProxy.setPanel(pushmePanel);
 pushmePanel.start();
 
 // 进程退出时保存消息计数

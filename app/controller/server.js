@@ -15,7 +15,7 @@ class Server extends Admin
     async status() {
         this.$success({
             memory: process.memoryUsage().heapUsed,
-            uptime: process.uptime(),
+            panel_uptime: this.ctx.pushme.panelUptime,
             process: process.pid,
             node: process.version,
             platform: process.platform,
@@ -54,6 +54,10 @@ class Server extends Admin
      * @returns {Promise<void>}
      */
     async restart() {
+        const config = getConfig();
+        if(config.status == 'stop') {
+            await this.$libs.setting.save({status: 'start'});
+        }
         const result = await this.ctx.pushme.restart();
         if(result === '重启成功') {
             this.$success('服务已重启！');
@@ -74,12 +78,13 @@ class Server extends Admin
         const domains = this.$request.query('domains', '');
         const res = await this.$libs.tls.create({domains, days});
         if(res.state) {
+            if(config.tls != 'none') {
+                await this.ctx.pushme.restart();
+            }
             if(config.panelTls != 'none') {
                 setTimeout(() => {
                     this.ctx.app.emit('PANEL_RESTART');
                 }, 500);
-            } else if(config.tls != 'none') {
-                await this.ctx.pushme.restart();
             }
             this.$success('证书生成成功！');
         } else {

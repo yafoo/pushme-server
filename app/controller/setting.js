@@ -49,6 +49,7 @@ class Setting extends Admin
         /** @type {string} 表单类型标识 */
         const form = this.$request.query('form', '');
         let ext_msg = '';
+        let ext_data = null;
         const oldTls = config.tls;
         const oldPanelTls = config.panelTls;
         const oldServerPort = config.serverPort;
@@ -62,35 +63,48 @@ class Setting extends Admin
                 return this.$error('push_key数据格式错误');
             }
             await this.$libs.setting.save({push_keys});
-        } else if(form == 'tls') {
-            const tls = this.$request.query('tls', 'none');
-            const panel_tls = this.$request.query('panel_tls', 'none');
-            // 验证是否存在
-            if((tls != 'none' || panel_tls != 'none') && (!this.$libs.tls.existsKey() || !this.$libs.tls.existsCert())) {
-                return this.$error(tls == 'public' ? '证书不存在' : '请先生成自签名证书');
-            }
-            await this.$libs.setting.save({tls, panel_tls});
-            if(panel_tls != oldPanelTls) {
-                ext_msg = '系统将自动重启';
-                setTimeout(() => {
-                    this.ctx.app.emit('PANEL_RESTART');
-                }, 500);
-            } else if(tls != oldTls) {
-                ext_msg = '服务将自动重启';
-                await this.ctx.pushme.restart();
-            }
-        } else if(form == 'port') {
-            const server_port = parseInt(this.$request.query('server_port', '3100'));
+        } else if(form == 'panel') {
+            // 面板设置：端口 + 证书
             const panel_port = parseInt(this.$request.query('panel_port', '3010'));
-            if(isNaN(server_port) || isNaN(panel_port) || server_port < 1 || panel_port < 1 || server_port > 65535 || panel_port > 65535) {
+            const panel_tls = this.$request.query('panel_tls', 'none');
+
+            if(isNaN(panel_port) || panel_port < 1 || panel_port > 65535) {
                 return this.$error('端口号必须为1-65535之间的数字！');
             }
-            await this.$libs.setting.save({server_port, panel_port});
-            if(server_port != oldServerPort || panel_port != oldPanelPort) {
-                ext_msg = '系统将自动重启以应用新端口';
+
+            // 验证证书是否存在
+            if(panel_tls != 'none' && (!this.$libs.tls.existsKey() || !this.$libs.tls.existsCert())) {
+                return this.$error('证书不存在，请先生成自签名证书');
+            }
+
+            await this.$libs.setting.save({panel_port, panel_tls});
+
+            if(panel_port != oldPanelPort || panel_tls != oldPanelTls) {
+                ext_msg = '面板将自动重启以应用新设置';
+                ext_data = {panel_port, panel_tls};
                 setTimeout(() => {
                     this.ctx.app.emit('PANEL_RESTART');
                 }, 500);
+            }
+        } else if(form == 'server') {
+            // 服务设置：端口 + 证书
+            const server_port = parseInt(this.$request.query('server_port', '3100'));
+            const tls = this.$request.query('tls', 'none');
+
+            if(isNaN(server_port) || server_port < 1 || server_port > 65535) {
+                return this.$error('端口号必须为1-65535之间的数字！');
+            }
+
+            // 验证证书是否存在
+            if(tls != 'none' && (!this.$libs.tls.existsKey() || !this.$libs.tls.existsCert())) {
+                return this.$error(tls == 'public' ? '证书不存在' : '请先生成自签名证书');
+            }
+
+            await this.$libs.setting.save({server_port, tls});
+
+            if(server_port != oldServerPort || tls != oldTls) {
+                ext_msg = '服务将自动重启以应用新设置';
+                await this.ctx.pushme.restart();
             }
         } else if(form == 'user') {
             const user = this.$request.query('user');
@@ -102,8 +116,8 @@ class Setting extends Admin
             // 模拟登录
             this.$cookie.set('user', user);
         }
-        
-        this.$success('保存成功！' + ext_msg);
+
+        this.$success('保存成功！' + ext_msg, ext_data);
     }
 }
 

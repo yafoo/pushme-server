@@ -111,7 +111,8 @@
     <div class="layui-tab layui-tab-card" lay-filter="setting" style="margin-bottom: 0;">
         <ul class="layui-tab-title">
             <li class="layui-this">系统信息</li>
-            <li>TLS/SSL</li>
+            <li>面板设置</li>
+            <li>服务设置</li>
             <li>PushKey</li>
             <li>账户密码</li>
             <li>系统日志</li>
@@ -136,7 +137,7 @@
                         </div>
                         <div class="layui-form-item">
                             <label class="layui-form-label">运行时间</label>
-                            <div class="layui-form-mid layui-word-aux me-status-uptime"></div>
+                            <div class="layui-form-mid layui-word-aux me-status-panel_uptime"></div>
                         </div>
                         <div class="layui-form-item">
                             <label class="layui-form-label">面板重启</label>
@@ -173,32 +174,43 @@
                         </div>
                     </div>
                 </form>
-                
-                <!-- 端口配置 -->
-                <form class="layui-form layui-form-pane" action="" method="post" style="margin-top: 20px; border-top: 1px solid #e6e6e6; padding-top: 15px;">
-                    <blockquote class="layui-elem-quote layui-font-red me-quote">端口配置（修改后系统将自动重启）</blockquote>
-                    <input type="hidden" name="form" value="port" />
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">服务端口</label>
-                        <div class="layui-input-block">
-                            <input type="number" name="server_port" value="{{server_port}}" placeholder="MQTT/WebSocket/TCP服务端口" autocomplete="off" class="layui-input" lay-verify="number" min="1" max="65535">
-                        </div>
-                    </div>
+            </div>
+
+            <!-- 面板设置 -->
+            <div class="layui-tab-item">
+                <form class="layui-form layui-form-pane" action="" method="post">
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">面板设置（修改后系统将自动重启）</blockquote>
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge-rim">./config/certs/</span>，私钥文件名为：<span class="layui-badge-rim">private.key</span>，证书文件名为：<span class="layui-badge-rim">cert.crt</span><br>另外：如果使用了nginx代理，并在ngxin里配置了证书，本系统就不要再开启证书了</blockquote>
+                    <input type="hidden" name="form" value="panel" />
                     <div class="layui-form-item">
                         <label class="layui-form-label">面板端口</label>
                         <div class="layui-input-block">
                             <input type="number" name="panel_port" value="{{panel_port}}" placeholder="Web管理面板端口" autocomplete="off" class="layui-input" lay-verify="number" min="1" max="65535">
                         </div>
                     </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">面板证书</label>
+                        <div class="layui-input-block">
+                            <input type="radio" name="panel_tls" value="none" title="无证书" lay-filter="panel_tls" {{panel_tls == 'none' ? 'checked' : ''}}>
+                            <input type="radio" name="panel_tls" value="tls" title="共用服务证书（自签名证书需浏览器导入证书才能访问）" lay-filter="panel_tls" {{panel_tls == 'tls' ? 'checked' : ''}}>
+                        </div>
+                    </div>
                     {{include './form_submit.htm'}}
                 </form>
             </div>
 
-            <!-- TLS/SSL -->
+            <!-- 服务设置 -->
             <div class="layui-tab-item">
                 <form class="layui-form layui-form-pane" action="" method="post">
-                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge-rim">./config/certs/</span>，私钥文件名为：<span class="layui-badge-rim">private.key</span>，证书文件名为：<span class="layui-badge-rim">cert.crt</span></blockquote>
-                    <input type="hidden" name="form" value="tls" />
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">服务设置（修改后服务将自动重启）</blockquote>
+                    <blockquote class="layui-elem-quote layui-font-red me-quote">提示：证书文件目录为：<span class="layui-badge-rim">./config/certs/</span>，私钥文件名为：<span class="layui-badge-rim">private.key</span>，证书文件名为：<span class="layui-badge-rim">cert.crt</span><br>另外：如果使用了nginx代理，并在ngxin里配置了证书，本系统就不要再开启证书了</blockquote>
+                    <input type="hidden" name="form" value="server" />
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">服务端口</label>
+                        <div class="layui-input-block">
+                            <input type="number" name="server_port" value="{{server_port}}" placeholder="MQTT/WebSocket/TCP服务端口" autocomplete="off" class="layui-input" lay-verify="number" min="1" max="65535">
+                        </div>
+                    </div>
                     <div class="layui-form-item">
                         <label class="layui-form-label">服务证书</label>
                         <div class="layui-input-block">
@@ -214,14 +226,6 @@
                             <div class="layui-btn layui-btn-danger layui-btn-sm me-btn-tls-create">点击生成自签名证书</div>
                         </div>
                     </div>
-                    <div class="layui-form-item">
-                        <label class="layui-form-label">面板证书</label>
-                        <div class="layui-input-block">
-                            <input type="radio" name="panel_tls" value="none" title="无证书" lay-filter="panel_tls" {{panel_tls == 'none' ? 'checked' : ''}}>
-                            <input type="radio" name="panel_tls" value="tls" title="共用服务证书（自签名证书需浏览器导入证书才能访问）" lay-filter="panel_tls" {{panel_tls == 'tls' ? 'checked' : ''}}>
-                        </div>
-                    </div>
-
                     {{include './form_submit.htm'}}
                 </form>
             </div>
@@ -259,7 +263,7 @@
             <!-- 系统日志 -->
             <div class="layui-tab-item">
                 <blockquote class="layui-elem-quote layui-font-red me-quote" style="margin-bottom: 10px;">
-                    <i class="layui-icon layui-icon-about"></i> 日志仅保存于内存中，系统重启后将清空
+                    <i class="layui-icon layui-icon-about" style="vertical-align: middle;"></i> 日志仅保存于内存中，系统重启后将清空
                 </blockquote>
                 <div class="me-log-toolbar">
                     <button class="layui-btn layui-btn-sm layui-btn-normal" id="log-toggle">暂停</button>
@@ -372,20 +376,45 @@
             $.post('', data.field, function(res) {
                 if(res.state) {
                     layer.msg(res.msg, {icon: 1});
-                    if(~res.msg.indexOf('系统将自动重启')) {
-                        setTimeout(function() {
-                            if(data.field.panel_tls == 'none') {
-                                location.replace(location.href.replace('https://', 'http://'));
+                    // 如果面板设置改变，可能需要切换网址
+                    if(data.field.form == 'panel') {
+                        if(res.data && res.data.panel_port && res.data.panel_tls) {
+                            const newPort = res.data.panel_port;
+                            const newTls = res.data.panel_tls;
+                            const currentUrl = new URL(location.href);
+                            currentUrl.port = newPort;
+                            if(newTls == 'none') {
+                                currentUrl.protocol = 'http:';
                             } else {
-                                location.replace(location.href.replace('http://', 'https://'));
+                                currentUrl.protocol = 'https:';
                             }
-                        }, 3000);
+                            setTimeout(function() {
+                                location.replace(currentUrl.toString());
+                            }, 3000);
+                        }
                     }
                 } else {
                     layer.msg(res.msg, {icon: 2});
                 }
             });
             return false;
+        });
+
+        // 面板重启
+        $('.me-btn-panel-restart').click(function() {
+            layer.confirm('确定重启面板吗？', {icon: 3, title:'提示'}, function(index) {
+                $.post('{{url("server/panel_restart")}}', function(res) {
+                    layer.close(index);
+                    if(res.state) {
+                        layer.msg(res.msg, {icon: 1});
+                        setTimeout(function() {
+                            history.go(0);
+                        }, 3000);
+                    } else {
+                        layer.msg(res.msg, {icon: 2});
+                    }
+                });
+            });
         });
 
         // 服务操作
@@ -425,22 +454,6 @@
                     layer.close(index);
                     if(res.state) {
                         layer.msg(res.msg, {icon: 1});
-                    } else {
-                        layer.msg(res.msg, {icon: 2});
-                    }
-                });
-            });
-        });
-        // 面板重启
-        $('.me-btn-panel-restart').click(function() {
-            layer.confirm('确定重启面板吗？', {icon: 3, title:'提示'}, function(index) {
-                $.post('{{url("server/panel_restart")}}', function(res) {
-                    layer.close(index);
-                    if(res.state) {
-                        layer.msg(res.msg, {icon: 1});
-                        setTimeout(function() {
-                            history.go(0);
-                        }, 3000);
                     } else {
                         layer.msg(res.msg, {icon: 2});
                     }
@@ -499,7 +512,7 @@
                     if(key == 'memory') {
                         const memoryMB = (value / 1024 / 1024).toFixed(2);
                         value = `${memoryMB}MB(${value}B)`;
-                    } else if(~key.indexOf('uptime') && value > 0) {
+                    } else if(key == 'panel_uptime' || key == 'pushme_uptime') {
                         value = formatUptimeDetailed(value);
                     } else if(key == 'pushme_status') {
                         form.val('status', {"pushme_status": value == 'start'});
@@ -614,9 +627,9 @@
         start_timer();
         layui.element.on('tab(setting)', function(data) {
             data.index == 0 ? start_timer() : stop_timer();
-            data.index == 1 && !getCert.is_init && getCert();
-            // 日志 tab（索引4）
-            if (data.index == 4) {
+            data.index == 2 && !getCert.is_init && getCert();
+            // 日志 tab（索引5）
+            if (data.index == 5) {
                 connectLog();
             } else {
                 disconnectLog();
