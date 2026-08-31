@@ -71,6 +71,9 @@
     .me-log-line.log-warning .log-level { color: #e5c07b; }
     .me-log-line.log-system .log-level { color: #61afef; }
     .me-log-line.log-info .log-level { color: #98c379; }
+    .me-log-line.log-debug .log-level { color: #c678dd; }
+    .me-log-line.log-http .log-level { color: #56b6c2; }
+    .me-log-line.log-sql .log-level { color: #d19a66; }
     .me-log-toolbar {
         margin-bottom: 10px;
         display: flex;
@@ -510,7 +513,7 @@
             get_status();
             timer_status = setInterval(function() {
                 get_status();
-            }, 5000);
+            }, 1000);
         }
         const stop_timer = function() {
             if(timer_status) clearInterval(timer_status);
