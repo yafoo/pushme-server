@@ -270,7 +270,7 @@
                     <button class="layui-btn layui-btn-sm layui-btn-danger" id="log-clear">清空</button>
                     <select class="me-log-level-select" id="log-level-filter">
                         <option value="">全部级别</option>
-                        {{each log_levels as lv}}
+                        {{each log_levels lv}}
                         <option value="{{lv}}">{{lv}}</option>
                         {{/each}}
                     </select>
