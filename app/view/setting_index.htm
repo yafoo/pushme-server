@@ -85,6 +85,21 @@
         background: #fff;
     }
     .me-log-count { margin-left: auto; }
+    .me-push-key-item {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        align-items: center;
+    }
+    .me-push-key-item .layui-input {
+        flex: 1;
+    }
+    .me-push-key-item .push-key-note {
+        flex: 0.5;
+    }
+    .me-push-key-item .layui-btn-danger {
+        flex-shrink: 0;
+    }
 </style>
 {{/block}}
 
@@ -215,7 +230,12 @@
                     <div class="layui-form-item">
                         <label class="layui-form-label">push_key</label>
                         <div class="layui-input-block">
-                            <input type="text" name="push_key" value="{{push_key || ''}}" placeholder="请输入push_key，多个用','隔开" autocomplete="off" class="layui-input">
+                            <div id="push-key-list">
+                                <!-- 动态生成的 push_key 行 -->
+                            </div>
+                            <button type="button" class="layui-btn layui-btn-sm layui-btn-normal" id="add-push-key" style="margin-top: 10px;">
+                                <i class="layui-icon layui-icon-add-1"></i> 添加 push_key
+                            </button>
                         </div>
                     </div>
 
@@ -261,9 +281,80 @@
         var layer = layui.layer;
         var form = layui.form;
         var $ = layui.$;
-      
+
+        // Push Key 动态列表管理
+        var pushKeys = {{@ push_keys_json}} || [];
+
+        // 渲染 push key 列表
+        function renderPushKeys() {
+            var $list = $('#push-key-list');
+            $list.empty();
+
+            pushKeys.forEach(function(item, index) {
+                var $item = $('<div class="me-push-key-item">' +
+                    '<input type="text" class="layui-input push-key-input" placeholder="push_key" value="' + (item.key || '') + '">' +
+                    '<input type="text" class="layui-input push-key-temp" placeholder="临时key（可选）" value="' + (item.temp_key || '') + '">' +
+                    '<input type="text" class="layui-input push-key-note" placeholder="备注（可选）" value="' + (item.note || '') + '">' +
+                    '<button type="button" class="layui-btn layui-btn-sm layui-btn-danger push-key-delete"><i class="layui-icon layui-icon-delete"></i></button>' +
+                    '</div>');
+
+                $item.find('.push-key-delete').on('click', function() {
+                    pushKeys.splice(index, 1);
+                    renderPushKeys();
+                });
+
+                $item.find('.push-key-input').on('input', function() {
+                    pushKeys[index].key = $(this).val();
+                });
+
+                $item.find('.push-key-temp').on('input', function() {
+                    pushKeys[index].temp_key = $(this).val();
+                });
+
+                $item.find('.push-key-note').on('input', function() {
+                    pushKeys[index].note = $(this).val();
+                });
+
+                $list.append($item);
+            });
+        }
+
+        // 添加 push key
+        $('#add-push-key').on('click', function() {
+            pushKeys.push({key: '', temp_key: '', note: ''});
+            renderPushKeys();
+        });
+
+        // 初始化列表
+        if(pushKeys.length === 0) {
+            pushKeys.push({key: '', note: ''});
+        }
+        renderPushKeys();
+
         form.on('submit', function(data) {
             console.log(data.field);
+
+            // 处理 push_key 表单提交
+            if(data.field.form == 'push_key') {
+                // 收集所有 push_key 数据
+                var keys = [];
+                $('.me-push-key-item').each(function() {
+                    var key = $(this).find('.push-key-input').val().trim();
+                    var temp_key = $(this).find('.push-key-temp').val().trim();
+                    var note = $(this).find('.push-key-note').val().trim();
+                    if(key) {
+                        keys.push({key: key, temp_key: temp_key, note: note});
+                    }
+                });
+
+                if(keys.length === 0) {
+                    layer.msg('至少需要添加一个 push_key！', {icon: 2});
+                    return false;
+                }
+
+                data.field.push_keys_json = JSON.stringify(keys);
+            }
+
             if(data.field.form == 'user') {
                 if(!data.field.user || !data.field.password) {
                     layer.msg('账号密码不能为空！', {icon: 2});

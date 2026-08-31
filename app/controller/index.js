@@ -26,9 +26,19 @@ class Index extends Base
         }
 
         let push_key = this.$request.query('push_key');
+        let temp_key = this.$request.query('temp_key');
         let title = this.$request.query('title');
         let content = this.$request.query('content');
         let type = this.$request.query('type');
+
+        // 如果没有 push_key，尝试通过 temp_key 查找
+        if(!push_key && temp_key) {
+            const config = getConfig();
+            const foundKey = config.findKeyByTempKey(temp_key);
+            if(foundKey) {
+                push_key = foundKey;
+            }
+        }
 
         // 兼容企微、钉钉、飞书
         const third_data = this.$libs.third.data();

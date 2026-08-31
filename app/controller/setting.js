@@ -28,7 +28,8 @@ class Setting extends Admin
     async index() {
         const config = getConfig();
         if(this.$request.isGet()) {
-            this.$assign('push_key', this.$libs.setting.get_push_key());
+            const push_keys = this.$libs.setting.get_push_keys();
+            this.$assign('push_keys_json', JSON.stringify(push_keys));
             this.$assign('tls', config.tls);
             this.$assign('panel_tls', config.panelTls);
             this.$assign('server_port', config.serverPort);
@@ -53,8 +54,14 @@ class Setting extends Admin
         const oldServerPort = config.serverPort;
         const oldPanelPort = config.panelPort;
         if(form == 'push_key') {
-            const push_key = this.$request.query('push_key', '');
-            await this.$libs.setting.save({push_key});
+            const push_keys_json = this.$request.query('push_keys_json', '[]');
+            let push_keys = [];
+            try {
+                push_keys = JSON.parse(push_keys_json);
+            } catch(e) {
+                return this.$error('push_key数据格式错误');
+            }
+            await this.$libs.setting.save({push_keys});
         } else if(form == 'tls') {
             const tls = this.$request.query('tls', 'none');
             const panel_tls = this.$request.query('panel_tls', 'none');
