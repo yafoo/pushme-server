@@ -1,4 +1,4 @@
-const {Context} = require('jj.js');
+const {Context, Logger} = require('jj.js');
 const {getConfig} = require('../../lib/config.js');
 
 /**
@@ -71,6 +71,7 @@ class Setting extends Context
         }
 
         config.update(updates);
+        Logger.system('config updated:', updates);
     }
 }
 
