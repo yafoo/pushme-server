@@ -6,7 +6,7 @@ ENV TZ=Asia/Shanghai
 
 EXPOSE 3010
 EXPOSE 3100
-VOLUME /config
+VOLUME /pushme-server/config
 
 WORKDIR /pushme-server
 COPY package.json package-lock.json ./
