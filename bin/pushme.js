@@ -48,6 +48,14 @@ function copyDir(src, dest) {
 }
 
 /**
+ * 校验目标目录是否安全（禁止路径穿越）
+ */
+function isSafeTargetDir(dir) {
+    if (!dir || dir === '.') return true;
+    return !dir.split(/[\\/]/).includes('..');
+}
+
+/**
  * 初始化项目到指定目录
  */
 function init(targetDir) {
@@ -188,6 +196,10 @@ const command = process.argv[2];
 if (command === 'init') {
     const targetDir = process.argv[3];
     if (targetDir) {
+        if (!isSafeTargetDir(targetDir)) {
+            log.error('目录名不合法：不允许包含路径穿越字符 ".."');
+            process.exit(1);
+        }
         init(targetDir);
     } else {
         // 动态提示用户输入
@@ -197,7 +209,12 @@ if (command === 'init') {
         });
         rl.question(`  ${c.blue}›${c.reset} 请输入项目目录名 ${c.dim}(直接回车在当前目录初始化)${c.reset}: `, (answer) => {
             rl.close();
-            init(answer.trim() || '.');
+            const dir = answer.trim() || '.';
+            if (!isSafeTargetDir(dir)) {
+                log.error('目录名不合法：不允许包含路径穿越字符 ".."');
+                process.exit(1);
+            }
+            init(dir);
         });
     }
 } else if (command === 'start') {
