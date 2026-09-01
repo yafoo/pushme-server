@@ -10,7 +10,7 @@ VOLUME /pushme-server/config
 
 WORKDIR /pushme-server
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+RUN NODE_OPTIONS="--max-old-space-size=1024" npm ci --omit=dev --no-audit --no-fund
 COPY . .
 COPY config config.demo
 
