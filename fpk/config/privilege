@@ -1,0 +1,7 @@
+{
+  "defaults": {
+    "run-as": "package"
+  },
+  "username": "pushme-server",
+  "groupname": "pushme-server"
+}

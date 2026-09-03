@@ -1,0 +1,13 @@
+{
+  ".url": {
+    "pushme-server.main": {
+      "title": "PushMe Server",
+      "icon": "images/icon_{0}.png",
+      "type": "url",
+      "protocol": "http",
+      "port": "${wizard_panel_port}",
+      "url": "/",
+      "allUsers": true
+    }
+  }
+}

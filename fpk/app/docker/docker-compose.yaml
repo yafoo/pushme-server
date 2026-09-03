@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  pushme-server:
+    image: yafoo/pushme-server:latest
+    container_name: pushme-server
+    restart: unless-stopped
+    ports:
+      - "${wizard_panel_port}:3010"
+      - "${wizard_service_port}:3100"
+    volumes:
+      - "${TRIM_DATA_SHARE_PATHS}/config:/pushme-server/config"
+    environment:
+      - TZ=${TZ:-Asia/Shanghai}

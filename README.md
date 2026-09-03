@@ -64,7 +64,44 @@ docker run -dit \
 - `-v` 参数将配置文件挂载到宿主机，方便持久化和修改
 - `--restart unless-stopped` 确保容器异常退出后自动重启
 
-### 方式三：源码部署
+### 方式三：Docker Compose 部署
+
+```bash
+# 创建部署目录
+mkdir pushme-server && cd pushme-server
+
+# 创建 docker-compose.yml
+cat > docker-compose.yml << 'EOF'
+version: '3.8'
+services:
+  pushme-server:
+    image: yafoo/pushme-server:latest
+    container_name: pushme-server
+    restart: unless-stopped
+    ports:
+      - "3010:3010"
+      - "3100:3100"
+    volumes:
+      - ./config:/pushme-server/config
+    environment:
+      - TZ=Asia/Shanghai
+EOF
+
+# 启动服务
+docker-compose up -d
+```
+
+### 方式四：飞牛 fnOS 应用
+
+PushMe Server 已提供飞牛 fnOS 的 `.fpk` 应用包配置，详见 [`fpk/`](fpk/) 目录。
+
+打包步骤：
+1. 在 `fpk/` 目录补充应用图标（`ICON.PNG`、`ICON_256.PNG`、`app/ui/images/`）
+2. 安装 [fnpack](https://developer.fnnas.com/docs/cli/fnpack/) 工具
+3. 在 `fpk/` 目录执行 `fnpack build`，生成 `pushme-server.fpk`
+4. 将 `.fpk` 文件安装到飞牛 fnOS 设备
+
+### 方式五：源码部署
 
 ```bash
 # 1. 克隆仓库
@@ -191,6 +228,7 @@ pushme-server/
 │   └── data.json        # 系统数据（配置和状态）
 ├── public/              # 静态资源（Layui）
 ├── docker/              # Docker 相关文件
+├── fpk/                 # 飞牛 fnOS 应用包配置
 ├── server.js            # 服务入口
 └── package.json         # 项目依赖
 ```
@@ -228,7 +266,29 @@ pushme-server/
 - **Gitee**: https://gitee.com/yafu/pushme-server
 - **Docker Hub**: https://hub.docker.com/r/yafoo/pushme-server
 - **PushMe 官网**: https://push.i-i.me/
+- **飞牛NAS**: https://fnnas.com/
 - **pushme-server-golang**: https://github.com/0x01feng/pushme-server-golang （第三方实现的golang版本PushMeServer）
+
+## 📦 飞牛 fnOS 应用
+
+PushMe Server 提供飞牛 fnOS 的 `.fpk` 应用包配置，位于 [`fpk/`](fpk/) 目录。
+
+### 应用信息
+
+- **应用名称**: PushMe Server
+- **应用描述**: 自建消息推送服务器，支持MQTT/WebSocket，接口兼容官方PushMe APP
+- **Docker镜像**: `yafoo/pushme-server:latest`
+- **端口**: 3010 (Web管理) / 3100 (消息服务)
+- **应用商店**: https://app.fnnas.com/
+
+### 打包与安装
+
+1. 准备应用图标（需要 `ICON.PNG`、`ICON_256.PNG` 和 `app/ui/images/` 下的图标）
+2. 安装 [fnpack](https://developer.fnnas.com/docs/cli/fnpack/) 工具
+3. 在 `fpk/` 目录执行 `fnpack build` 生成 `pushme-server.fpk`
+4. 将 `.fpk` 文件安装到飞牛 fnOS 设备
+
+详细文档参见 [`fpk/README.md`](fpk/README.md)。
 
 ## 📄 许可证
 
