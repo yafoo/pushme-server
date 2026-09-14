@@ -5,6 +5,6 @@
 /bin
 /node_modules
 /config/data.json
-/docker/.dockerignore
+/docker/Dockerfile.dockerignore
 /docker/Dockerfile
 /types.js
